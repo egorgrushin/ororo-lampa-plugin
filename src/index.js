@@ -18,11 +18,11 @@ const open = (cardData) => {
 const addOpenButtonToCard = (manifest, whereToRender, cardData) => {
     if (whereToRender.find(`#${OPEN_BUTTON_ID}`).length) return;
     const button = $('<div></div>');
-    button.id = OPEN_BUTTON_ID;
+    button.attr('id', OPEN_BUTTON_ID);
     // required classes for correct button rendering
-    button.classList = ['full-start__button', 'selector'];
-    button.setAttribute('data-subtitle', `${manifest.name} v${manifest.version}`);
-    button.textContent = translate(TEXTS.Title);
+    button.addClass(['full-start__button', 'selector']);
+    button.attr('data-subtitle', `${manifest.name} v${manifest.version}`);
+    button.text(translate(TEXTS.Title));
     button.on('hover:enter', () => open(cardData));
     whereToRender.before(button);
 };
@@ -31,7 +31,7 @@ const initPlugin = () => {
     registerTexts();
     const manifest = {
         type: 'video',
-        version: '0.0.1',
+        version: '0.0.2',
         name: PLUGIN_NAME,
         description: 'Плагин для просмотра сериалов и фильмов на сервисе ororo.tv',
         component: COMPONENT_NAME,
