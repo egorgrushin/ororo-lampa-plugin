@@ -4,7 +4,7 @@ import { CONTENT_CONTROLLER_NAME, FILTER_SEASONS_KEY } from './constants';
 import { TEXTS } from './texts';
 
 export class OroroComponent {
-    constructor(cardData) {
+    constructor(movie) {
         this.cardData = cardData;
         this.request = new Lampa.Reguest();
         this.scroll = new Lampa.Scroll({ mask: true, over: true });
