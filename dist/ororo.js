@@ -77,20 +77,20 @@
   };
 
   var OroroComponent = /*#__PURE__*/function () {
-    function OroroComponent(movie) {
+    function OroroComponent(input) {
       _classCallCheck(this, OroroComponent);
-      this.cardData = cardData;
+      this.movie = input.movie;
       this.request = new Lampa.Reguest();
       this.scroll = new Lampa.Scroll({
         mask: true,
         over: true
       });
-      this.explorer = new Lampa.Explorer(cardData);
-      this.filter = new Lampa.Filter(cardData);
+      this.explorer = new Lampa.Explorer(input.movie);
+      this.filter = new Lampa.Filter(input.movie);
       this.isInitialized = false;
       this.last = undefined;
       this.activity = undefined;
-      console.log(this.cardData);
+      console.log(input.movie);
     }
     return _createClass(OroroComponent, [{
       key: "start",
@@ -99,7 +99,7 @@
         if (!this.isInitialized) {
           this.initialize();
         }
-        Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.cardData.movie));
+        Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
         this.initController();
       }
     }, {
