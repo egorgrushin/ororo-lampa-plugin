@@ -1,6 +1,13 @@
 {
+  "name": "ororo-lampa-plugin",
+  "version": "1.0.0",
+  "main": "srs/index.js",
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "preversion": "npm run build"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -1,0 +1,4 @@
+node_modules
+.idea
+/compiled
+/src/testing
