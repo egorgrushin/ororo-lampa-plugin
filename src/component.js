@@ -8,8 +8,8 @@ export class OroroComponent {
         this.movie = input.movie;
         this.request = new Lampa.Reguest();
         this.scroll = new Lampa.Scroll({ mask: true, over: true });
-        this.explorer = new Lampa.Explorer(input.movie);
-        this.filter = new Lampa.Filter(input.movie);
+        this.explorer = new Lampa.Explorer(input);
+        this.filter = new Lampa.Filter(input);
         this.isInitialized = false;
         this.last = undefined;
         this.activity = undefined;
