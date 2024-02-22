@@ -4,6 +4,9 @@ export const TEMPLATE_NAMES = {
     ContentLoading: `${PLUGIN_NAME}-content-loading`,
 };
 
+/**
+ * template from Lampa sources
+ */
 const CONTENT_LOADING_TEMPLATE = `
     <div class="online-empty">
         <div class="broadcast__scan"><div></div></div>
