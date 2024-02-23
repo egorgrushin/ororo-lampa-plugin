@@ -37,7 +37,7 @@ export class OroroComponent {
         const selectedSeasonTitle =
             seasonSelectItems.find(({ isSelected }) => isSelected)?.title ?? translate(TEXTS.EmptyFilter);
         this.filter.set(FILTER_SEASONS_KEY, seasonSelectItems);
-        this.filter.chosen(FILTER_SEASONS_KEY, selectedSeasonTitle);
+        this.filter.chosen(FILTER_SEASONS_KEY, [selectedSeasonTitle]);
     }
 
     initialize() {
