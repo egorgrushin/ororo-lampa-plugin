@@ -1,6 +1,6 @@
 import { getCurrentActivity, translate } from './utils';
 import { getTemplate, TEMPLATE_NAMES } from './templates';
-import { CONTENT_CONTROLLER_NAME, FILTER_SEASONS_KEY } from './constants';
+import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
 
 export class OroroComponent {
@@ -36,8 +36,8 @@ export class OroroComponent {
         }));
         const selectedSeasonTitle =
             seasonSelectItems.find(({ isSelected }) => isSelected)?.title ?? translate(TEXTS.EmptyFilter);
-        this.filter.set(FILTER_SEASONS_KEY, seasonSelectItems);
-        this.filter.chosen(FILTER_SEASONS_KEY, [selectedSeasonTitle]);
+        this.filter.set(FILTER_KEY, seasonSelectItems);
+        this.filter.chosen(FILTER_KEY, [selectedSeasonTitle]);
     }
 
     initialize() {
@@ -98,7 +98,7 @@ export class OroroComponent {
             },
             right: () => {
                 if (Navigator.canmove('right')) return Navigator.move('right');
-                this.filter.show(translate('title_filter'), FILTER_SEASONS_KEY);
+                this.filter.show(translate('title_filter'), FILTER_KEY);
             },
             left: () => {
                 if (Navigator.canmove('left')) return Navigator.move('left');
