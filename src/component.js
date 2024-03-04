@@ -40,13 +40,16 @@ export class OroroComponent {
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
         this.filter.chosen(FILTER_KEY, [selectedSeasonTitle]);
+
+        this.filter.onSelect = (type, seasonSelectItem) => {
+            this.filter.chosen(FILTER_KEY, [seasonSelectItem.title]);
+            Lampa.Select.close();
+            // this.setChoice(seasonSelectItem);
+        };
     }
 
     initialize() {
-        this.filter.onSelect = (type, seasonSelectItem) => {
-            this.setChoice(seasonSelectItem);
-            Lampa.Select.close();
-        };
+        this.initializeFilter();
         // add scroll smoothness
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
@@ -55,7 +58,6 @@ export class OroroComponent {
         this.scroll.minus(this.render().find('.explorer__files-head'));
         this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
         this.isInitialized = true;
-        this.initializeFilter();
     }
 
     create() {
