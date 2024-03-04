@@ -27,7 +27,7 @@ export class OroroComponent {
         console.log(seasonSelectItem);
     }
 
-    initializeSeasonSelector() {
+    initializeFilter() {
         const selectedSeasonId = 215686;
         const seasonSelectItems = this.movie.seasons.map((season) => ({
             id: season.id,
@@ -37,6 +37,8 @@ export class OroroComponent {
         const selectedSeasonTitle =
             seasonSelectItems.find(({ isSelected }) => isSelected)?.title ?? translate(TEXTS.EmptyFilter);
         this.filter.set(FILTER_KEY, seasonSelectItems);
+        // hide filter search button
+        this.filter.render().find('.filter--search').addClass('hide');
         this.filter.chosen(FILTER_KEY, [selectedSeasonTitle]);
     }
 
@@ -53,7 +55,7 @@ export class OroroComponent {
         this.scroll.minus(this.render().find('.explorer__files-head'));
         this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
         this.isInitialized = true;
-        this.initializeSeasonSelector();
+        this.initializeFilter();
     }
 
     create() {
