@@ -7,7 +7,7 @@ export const TEXTS = {
 
 export const registerTexts = () => {
     Lampa.Lang.add({
-        [TEXTS.Title]: { ru: 'Ororo.tv', en: 'Ororo.tv' },
+        [TEXTS.Title]: { ru: 'Ororo', en: 'Ororo' },
         [TEXTS.EmptyFilter]: { ru: 'Empty', en: 'Empty' },
     });
 };

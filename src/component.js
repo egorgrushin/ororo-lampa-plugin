@@ -2,6 +2,7 @@ import { getCurrentActivity, translate } from './utils';
 import { getTemplate, TEMPLATE_NAMES } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
+import { Subject } from 'rxjs';
 
 export class OroroComponent {
     constructor(input) {
@@ -10,54 +11,56 @@ export class OroroComponent {
         this.scroll = new Lampa.Scroll({ mask: true, over: true });
         this.explorer = new Lampa.Explorer(input);
         this.filter = new Lampa.Filter(input);
-        this.isInitialized = false;
+        this.isInit = false;
         this.last = undefined;
         this.activity = undefined;
-        console.log(input.movie);
     }
 
     start() {
         if (getCurrentActivity() !== this.activity) return;
-        if (!this.isInitialized) { this.initialize(); }
+        if (!this.isInit) { this.init(); this.isInit = true; }
         Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
         this.initController();
     }
 
-    setChoice(seasonSelectItem) {
-        console.log(seasonSelectItem);
+    onFilterSelect(selectedFilterItem) {
+        this.filter.chosen(FILTER_KEY, [selectedFilterItem.title ?? translate(TEXTS.EmptyFilter)]);
+        Lampa.Select.close();
+        this.setIsLoading(true);
+        setTimeout(() => {
+            this.setIsLoading(false);
+        }, 3000);
     }
 
-    initializeFilter() {
+    initFilter() {
         const selectedSeasonId = 215686;
-        const seasonSelectItems = this.movie.seasons.map((season) => ({
+        const filterItems = this.movie.seasons.map((season) => ({
             id: season.id,
             title: season.name,
             isSelected: season.id === selectedSeasonId,
         }));
-        const selectedSeasonTitle =
-            seasonSelectItems.find(({ isSelected }) => isSelected)?.title ?? translate(TEXTS.EmptyFilter);
-        this.filter.set(FILTER_KEY, seasonSelectItems);
+        const selectedFilterItem = filterItems.find(({ isSelected }) => isSelected);
+        this.filter.set(FILTER_KEY, filterItems);
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
-        this.filter.chosen(FILTER_KEY, [selectedSeasonTitle]);
-
-        this.filter.onSelect = (type, seasonSelectItem) => {
-            this.filter.chosen(FILTER_KEY, [seasonSelectItem.title]);
-            Lampa.Select.close();
-            // this.setChoice(seasonSelectItem);
-        };
+        this.filterSubject = new Subject(selectedFilterItem);
+        this.filterSubject.subscribe(this.onFilterSelect)
+        this.filter.onSelect = (type, selectedFilterItem) => this.filterSubject.next(selectedFilterItem);
     }
 
-    initialize() {
-        this.initializeFilter();
+    initBody() {
         // add scroll smoothness
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
-        Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
+        // Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
         this.scroll.minus(this.render().find('.explorer__files-head'));
-        this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
-        this.isInitialized = true;
+        this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading))
+    }
+
+    init() {
+        this.initFilter();
+        this.initBody();
     }
 
     create() {
@@ -87,6 +90,7 @@ export class OroroComponent {
             this.activity.toggle();
         }
     }
+
     initController() {
         Lampa.Controller.add(CONTENT_CONTROLLER_NAME, {
             toggle: () => {
