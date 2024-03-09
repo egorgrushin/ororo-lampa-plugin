@@ -3,6 +3,9 @@ import { getTemplate, TEMPLATE_NAMES } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
 import { Subject } from 'rxjs';
+import { delay, switchMap, tap } from 'rxjs/operators';
+import { of } from 'rxjs/internal/observable/of';
+import { createAffectLoadingState } from './affectLoadingState';
 
 export class OroroComponent {
     constructor(input) {
@@ -18,18 +21,27 @@ export class OroroComponent {
 
     start() {
         if (getCurrentActivity() !== this.activity) return;
-        if (!this.isInit) { this.init(); this.isInit = true; }
+        if (!this.isInit) {
+            this.init();
+            this.isInit = true;
+        }
         Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
         this.initController();
     }
 
-    onFilterSelect(selectedFilterItem) {
-        this.filter.chosen(FILTER_KEY, [selectedFilterItem.title ?? translate(TEXTS.EmptyFilter)]);
-        Lampa.Select.close();
-        this.setIsLoading(true);
-        setTimeout(() => {
-            this.setIsLoading(false);
-        }, 3000);
+    initFlow() {
+        const affectLoadingState = createAffectLoadingState((isLoading) => this.setIsLoading(isLoading));
+        const fetchEpisodes$ = (selectedFilterItem) => of([1, 2, 3]).pipe(delay(3000));
+
+        this.flowSubscription = this.filterSubject.pipe(
+            tap((selectedFilterItem) => {
+                this.filter.chosen(FILTER_KEY, [selectedFilterItem.title ?? translate(TEXTS.EmptyFilter)]);
+                Lampa.Select.close();
+            }),
+            switchMap((selectedFilterItem) => affectLoadingState(
+                fetchEpisodes$(selectedFilterItem),
+            )),
+        ).subscribe();
     }
 
     initFilter() {
@@ -44,7 +56,7 @@ export class OroroComponent {
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
         this.filterSubject = new Subject(selectedFilterItem);
-        this.filterSubject.subscribe(this.onFilterSelect)
+        this.initFlow();
         this.filter.onSelect = (type, selectedFilterItem) => this.filterSubject.next(selectedFilterItem);
     }
 
@@ -55,7 +67,7 @@ export class OroroComponent {
         this.explorer.appendHead(this.filter.render());
         // Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
         this.scroll.minus(this.render().find('.explorer__files-head'));
-        this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading))
+        this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
     }
 
     init() {
@@ -126,6 +138,7 @@ export class OroroComponent {
     stop() {};
 
     destroy() {
+        this.flowSubscription.unsubscribe();
         // this.network.clear();
         this.filter.destroy();
         this.explorer.destroy();
