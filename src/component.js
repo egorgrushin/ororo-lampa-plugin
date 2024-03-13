@@ -30,7 +30,7 @@ export class OroroComponent {
     }
 
     initFlow() {
-        const affectLoadingState = createAffectLoadingState((isLoading) => this.setIsLoading(isLoading));
+        const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
         const fetchEpisodes$ = (selectedFilterItem) => of([1, 2, 3]).pipe(delay(3000));
 
         this.flowSubscription = this.filterSubject.pipe(
