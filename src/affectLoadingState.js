@@ -1,22 +1,22 @@
-import { EMPTY, pipe, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 
 export const createAffectLoadingState = (setter) => (observable) => {
     let stateCleared;
-    return pipe(
-        tap((value) => {
-            setter?.({ isLoading: true, error: undefined }, false, value);
+    return of(undefined).pipe(
+        tap(() => {
+            setter?.({ isLoading: true, error: undefined }, false);
             stateCleared = false;
         }),
-        switchMap((value) => observable.pipe(
+        switchMap(() => observable.pipe(
             catchError((error) => {
                 setter?.({ isLoading: false, error }, false, undefined);
                 stateCleared = true;
-                return rethrow ? throwError(error) : EMPTY;
+                return throwError(error);
             }),
         )),
-        tap((value) => {
-            setter?.({ isLoading: false }, false, value);
+        tap(() => {
+            setter?.({ isLoading: false }, false);
             stateCleared = true;
         }),
         finalize(() => {
