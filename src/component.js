@@ -3,7 +3,7 @@ import { getTemplate, TEMPLATE_NAMES } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
 import { BehaviorSubject, of } from 'rxjs';
-import { delay, switchMap, tap, filter } from 'rxjs/operators';
+import { delay, filter, switchMap, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
 
 export class OroroComponent {
@@ -28,18 +28,23 @@ export class OroroComponent {
         this.initController();
     }
 
+    fetchEpisodes$(selectedFilterItem) {
+        return of([1, 2, 3]).pipe(delay(3000));
+    }
+
     initFlow() {
         const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
-        const fetchEpisodes$ = (selectedFilterItem) => of([1, 2, 3]).pipe(delay(3000));
 
         this.flowSubscription = this.filterSubject.pipe(
             tap((selectedFilterItem) => {
                 this.filter.chosen(FILTER_KEY, [selectedFilterItem?.title ?? translate(TEXTS.EmptyFilter)]);
-                Lampa.Select.close();
+                try {
+                    Lampa.Select.close();
+                } catch (err) { }
             }),
             filter((selectedFilterItem) => !!selectedFilterItem),
             switchMap((selectedFilterItem) => affectLoadingState(
-                fetchEpisodes$(selectedFilterItem),
+                this.fetchEpisodes$(selectedFilterItem),
             )),
         ).subscribe();
     }
