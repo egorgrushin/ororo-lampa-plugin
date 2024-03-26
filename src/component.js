@@ -32,15 +32,23 @@ export class OroroComponent {
         return of([1, 2, 3]).pipe(delay(3000));
     }
 
+    closeSelect() {
+        try {
+            Lampa.Select.close();
+        } catch (err) { }
+    }
+
+    setSelectedFilterText(text) {
+        this.filter.chosen(FILTER_KEY, [text ?? translate(TEXTS.EmptyFilter)]);
+    }
+
     initFlow() {
         const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
 
         this.flowSubscription = this.filterSubject.pipe(
             tap((selectedFilterItem) => {
-                this.filter.chosen(FILTER_KEY, [selectedFilterItem?.title ?? translate(TEXTS.EmptyFilter)]);
-                try {
-                    Lampa.Select.close();
-                } catch (err) { }
+                this.setSelectedFilterText(selectedFilterItem?.title);
+                this.closeSelect();
             }),
             filter((selectedFilterItem) => !!selectedFilterItem),
             switchMap((selectedFilterItem) => affectLoadingState(
