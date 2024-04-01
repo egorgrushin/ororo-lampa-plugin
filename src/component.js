@@ -1,10 +1,11 @@
 import { getCurrentActivity, translate } from './utils';
-import { getTemplate, TEMPLATE_NAMES } from './templates';
+import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
 import { BehaviorSubject, of } from 'rxjs';
-import { delay, filter, switchMap, distinctUntilKeyChanged, tap } from 'rxjs/operators';
+import { delay, distinctUntilKeyChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
+import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
 
 export class OroroComponent {
     constructor(input) {
@@ -29,33 +30,52 @@ export class OroroComponent {
     }
 
     fetchEpisodes$(selectedFilterItem) {
-        return of([1, 2, 3]).pipe(delay(3000));
-    }
-
-    closeSelect() {
-        try {
-            Lampa.Select.close();
-        } catch (err) { }
+        return of([
+            { id: 671, season: 6, number: '2', airdate: '1999-09-30', name: 'The One Where Ross Hugs Rachel' },
+            { id: 676, season: 5, number: '7', airdate: '1999-11-04', name: 'The One Where Phoebe Runs' },
+            { id: 679, season: 6, number: '10', airdate: '1999-12-16', name: 'The One with the Routine' },
+        ]).pipe(delay(1500));
     }
 
     setSelectedFilterText(text) {
         this.filter.chosen(FILTER_KEY, [text ?? translate(TEXTS.EmptyFilter)]);
     }
 
+    applySelectedFilterItem$(selectedFilterItem) {
+        return this.fetchEpisodes$(selectedFilterItem).pipe(tap((episodes) => this.setEpisodes(episodes)));
+    }
+
+    setEpisodes(episodes) {
+        const episodesHtml = episodes.map((episode) => {
+            const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
+            const enrichedEpisode = {
+                ...episode,
+                releaseDate: new Date(episode.airdate).toLocaleDateString(),
+            };
+
+            const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
+            episodeHtml
+                .find(EPISODE_TEMPLATE.classNames.timeline)
+                .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
+        });
+
+        this.scroll.clear();
+        this.scroll.reset();
+        this.scroll.body().append(...episodesHtml);
+    }
+
     initFlow() {
         const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
-
-        this.flowSubscription = this.filterSubject.pipe(
-            tap((selectedFilterItem) => {
-                this.setSelectedFilterText(selectedFilterItem?.title);
-                this.closeSelect();
-            }),
-            distinctUntilKeyChanged('id'),
-            filter((selectedFilterItem) => !!selectedFilterItem),
-            switchMap((selectedFilterItem) => affectLoadingState(
-                this.fetchEpisodes$(selectedFilterItem),
-            )),
-        ).subscribe();
+        this.flowSubscription = this.filterSubject
+            .pipe(
+                tap((selectedFilterItem) => this.setSelectedFilterText(selectedFilterItem?.title)),
+                distinctUntilKeyChanged('id'),
+                filter((selectedFilterItem) => !!selectedFilterItem),
+                switchMap((selectedFilterItem) =>
+                    affectLoadingState(this.applySelectedFilterItem$(selectedFilterItem)),
+                ),
+            )
+            .subscribe();
     }
 
     initFilter() {
@@ -71,7 +91,10 @@ export class OroroComponent {
         this.filter.render().find('.filter--search').addClass('hide');
         this.filterSubject = new BehaviorSubject(selectedFilterItem);
         this.initFlow();
-        this.filter.onSelect = (type, selectedFilterItem) => this.filterSubject.next(selectedFilterItem);
+        this.filter.onSelect = (type, selectedFilterItem) => {
+            Lampa.Select.close();
+            this.filterSubject.next(selectedFilterItem);
+        };
     }
 
     initBody() {
@@ -80,8 +103,6 @@ export class OroroComponent {
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
         // Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
-        this.scroll.minus(this.render().find('.explorer__files-head'));
-        this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
     }
 
     init() {
@@ -111,7 +132,10 @@ export class OroroComponent {
     }
 
     setIsLoading(isLoading) {
-        this.activity.loader(isLoading);
+        // this.activity.loader(isLoading);
+        this.scroll.clear();
+        this.scroll.reset();
+        this.scroll.body().append(getTemplate(CONTENT_LOADING_TEMPLATE));
         if (!isLoading) {
             this.activity.toggle();
         }
@@ -147,9 +171,11 @@ export class OroroComponent {
 
     back() {
         Lampa.Activity.backward();
-    };
-    pause() {};
-    stop() {};
+    }
+
+    pause() {}
+
+    stop() {}
 
     destroy() {
         this.flowSubscription.unsubscribe();
