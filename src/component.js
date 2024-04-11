@@ -1,4 +1,4 @@
-import { getCurrentActivity, translate } from './utils';
+import { getCurrentActivity, getCurrentLanguage, translate } from './utils';
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
@@ -46,13 +46,14 @@ export class OroroComponent {
     }
 
     setEpisodes(episodes) {
+        const locale = getCurrentLanguage();
+        const dateTimeFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
         const episodesHtml = episodes.map((episode) => {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
                 ...episode,
-                releaseDate: new Date(episode.airdate).toLocaleDateString(),
+                releaseDate: dateTimeFormatter.format(new Date(episode.airdate)),
             };
-
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
                 .find(EPISODE_TEMPLATE.classNames.timeline)
@@ -133,7 +134,6 @@ export class OroroComponent {
     }
 
     setIsLoading(isLoading) {
-        // this.activity.loader(isLoading);
         if (isLoading) {
             this.scroll.clear();
             this.scroll.reset();
