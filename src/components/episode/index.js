@@ -7,6 +7,7 @@ const template = `
         <div class="${styles.body}">
             <div class="${styles.head}">
                 <div class="${styles.title}">{name}</div>
+                <div class="${styles.duration}">{duration}</div>
             </div>
     
             <div class="${styles.timeline}"></div>
@@ -18,9 +19,8 @@ const template = `
     </div>
 `;
 
-
 export const EPISODE_TEMPLATE = {
     name: `${PLUGIN_NAME}-episode`,
     template,
-    classNames: styles
+    classNames: styles,
 };
