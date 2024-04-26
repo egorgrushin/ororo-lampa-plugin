@@ -50,11 +50,6 @@ export class OroroComponent {
         const tmdbUrl = `tv/${this.movie.id}/season/${season}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
         const url = Lampa.TMDB.api(tmdbUrl);
         return this.request$(url);
-        // return of([
-        //     { id: 671, season: 6, number: '2', airdate: '1999-09-30', name: 'The One Where Ross Hugs Rachel' },
-        //     { id: 676, season: 5, number: '7', airdate: '1999-11-04', name: 'The One Where Phoebe Runs' },
-        //     { id: 679, season: 6, number: '10', airdate: '1999-12-16', name: 'The One with the Routine' },
-        // ]).pipe(delay(1500));
     }
 
     setSelectedFilterText(text) {
@@ -72,7 +67,7 @@ export class OroroComponent {
                 ...episode,
                 duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
                 releaseDate: Lampa.Utils.parseTime(episode.air_date).full,
-                // releaseDate: dateTimeFormatter.format(new Date(episode.air_date)),
+                previewImageUrl: Lampa.TMDB.image(`t/p/w300${episode.still_path}`),
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
