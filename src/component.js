@@ -66,8 +66,6 @@ export class OroroComponent {
     }
 
     setEpisodes(episodes) {
-        // const locale = getCurrentLanguage();
-        // const dateTimeFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
         const episodesHtml = episodes.map((episode) => {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
@@ -103,8 +101,9 @@ export class OroroComponent {
     }
 
     initFilter() {
-        const selectedSeasonId = 215686;
-        const filterItems = this.movie.seasons.map((season) => ({
+        const validSeasons = this.movie.seasons.filter(({ season_number }) => season_number > 0);
+        const selectedSeasonId = validSeasons[0];
+        const filterItems = validSeasons.map((season) => ({
             id: season.id,
             title: season.name,
             number: season.season_number,
