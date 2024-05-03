@@ -5,9 +5,8 @@ const template = `
     <div class="${styles.root} selector">
         <div class="${styles.image}">
             <img alt="" class="${styles.image__background}"
-                src="{previewImageUrl}"
-                onload="">
-            <span class="${styles.image__number}">{number}</span>
+                src="{previewImageUrl}">
+            <span class="${styles.image__number}">{episodeNumber}</span>
         </div>
         <div class="${styles.body}">
             <div class="${styles.head}">
