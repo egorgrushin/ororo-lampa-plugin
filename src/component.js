@@ -72,10 +72,10 @@ export class OroroComponent {
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
-                .find(EPISODE_TEMPLATE.classNames.timeline)
+                .find(`.${EPISODE_TEMPLATE.classNames.timeline}`)
                 .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
 
-            const imgRef = episodeHtml.find(EPISODE_TEMPLATE.classNames.image__background)[0];
+            const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
             imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.imageLoaded);
 
