@@ -45,15 +45,15 @@
 		height: 100%;
 		object-fit: cover;
 		border-radius: .3em;
+		transition: opacity .3s;
 		opacity: 0;
-		transition: opacity .3s
-	}
-	
-	&.loaded {
-		.image__background {
-			opacity: 1
+		
+		&.loaded {
+			opacity: 1;
 		}
 	}
+	
+	
 }
 
 

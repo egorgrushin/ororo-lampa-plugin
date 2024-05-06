@@ -1,4 +1,4 @@
-import { getCurrentActivity, getCurrentLanguage, translate } from './utils';
+import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils';
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
@@ -65,7 +65,7 @@ export class OroroComponent {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
                 ...episode,
-                episodeNumber: episode.number,
+                number: pad(episode.episode_number, 2),
                 duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
                 releaseDate: Lampa.Utils.parseTime(episode.air_date).full,
                 previewImageUrl: Lampa.TMDB.image(`t/p/w300${episode.still_path}`),
