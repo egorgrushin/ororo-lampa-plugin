@@ -85,6 +85,7 @@ export class OroroComponent {
         this.scroll.clear();
         this.scroll.reset();
         this.scroll.body().append(...episodesHtml);
+        Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
     initFlow() {
@@ -127,7 +128,6 @@ export class OroroComponent {
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
-        // Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
     init() {
