@@ -19,22 +19,6 @@ export class OroroComponent {
         this.activity = undefined;
     }
 
-    request$(url) {
-        return new Observable((subscriber) => {
-            this.request.timeout(1000 * 10);
-            this.request.native(
-                url,
-                (data) => {
-                    subscriber.next(data.episodes);
-                    subscriber.complete();
-                },
-                (err) => {
-                    subscriber.error(err);
-                },
-            );
-        });
-    }
-
     start() {
         if (getCurrentActivity() !== this.activity) return;
         if (!this.isInit) {
@@ -83,7 +67,6 @@ export class OroroComponent {
         });
 
         this.scroll.clear();
-        this.scroll.reset();
         this.scroll.body().append(...episodesHtml);
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
@@ -208,5 +191,21 @@ export class OroroComponent {
         this.filter.destroy();
         this.explorer.destroy();
         this.scroll.destroy();
+    }
+
+    request$(url) {
+        return new Observable((subscriber) => {
+            this.request.timeout(1000 * 10);
+            this.request.native(
+                url,
+                (data) => {
+                    subscriber.next(data.episodes);
+                    subscriber.complete();
+                },
+                (err) => {
+                    subscriber.error(err);
+                },
+            );
+        });
     }
 }
