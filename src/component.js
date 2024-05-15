@@ -174,7 +174,7 @@ export class OroroComponent {
                 Lampa.Activity.backward();
             },
         });
-        Lampa.Controller.toggle(CONTENT_CONTROLLER_NAME);
+        Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
     back() {
