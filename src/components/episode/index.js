@@ -6,7 +6,7 @@ const template = `
         <div class="${styles.image}">
             <img alt="" class="${styles.image__background}"
                 src="{previewImageUrl}">
-            <span class="${styles.image__number}">{number}</span>
+            <span class="${styles.image__number}">{episodeNumberFormatted}</span>
         </div>
         <div class="${styles.body}">
             <div class="${styles.head}">
