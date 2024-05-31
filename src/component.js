@@ -2,10 +2,11 @@ import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils'
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { distinctUntilKeyChanged, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, from, Observable, of } from 'rxjs';
+import { distinctUntilKeyChanged, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
 import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
+import { createOroroApi } from './ororo';
 
 export class OroroComponent {
     constructor(input) {
@@ -17,6 +18,7 @@ export class OroroComponent {
         this.isInit = false;
         this.last = undefined;
         this.activity = undefined;
+        this.ororoApi = createOroroApi();
     }
 
     start() {
@@ -39,11 +41,14 @@ export class OroroComponent {
         this.filter.chosen(FILTER_KEY, [text ?? translate(TEXTS.EmptyFilter)]);
     }
 
-    fetchOroroMovie$() {
-        return of({});
+    fetchOroroShow$(movie) {
+        return this.ororoShows$.pipe(
+            map((ororoShows) => ororoShows.filter((ororoShow) => ororoShow.tmdb_id === movie.id)),
+        );
     }
 
-    setEpisodes(ororoMovie, tmdbEpisodes) {
+    setEpisodes(ororoShow, tmdbEpisodes) {
+        console.log(ororoShow);
         const episodesHtml = tmdbEpisodes.map((episode) => {
             const episodeNumber = episode.episode_number;
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episodeNumber}`);
@@ -72,19 +77,28 @@ export class OroroComponent {
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
+    initOroroShows() {
+        this.ororoShows$ = of(undefined).pipe(
+            switchMap(() => from(this.ororoApi.getShows())),
+            shareReplay({ refCount: true, bufferSize: 1 }),
+        );
+    }
+
     initFlow() {
-        const ororoMovie$ = this.fetchOroroMovie$().pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+        this.initOroroShows();
 
         const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
 
         const mixed$ = this.filter$.pipe(
             switchMap(({ seasonNumber }) =>
-                affectLoadingState(combineLatest([ororoMovie$, this.fetchTmdbEpisodes$(seasonNumber)])),
+                affectLoadingState(
+                    combineLatest([this.fetchOroroShow$(this.movie), this.fetchTmdbEpisodes$(seasonNumber)]),
+                ),
             ),
         );
 
-        this.flowSubscription = mixed$.subscribe(([ororoMovie, tmdbEpisodes]) =>
-            this.setEpisodes(ororoMovie, tmdbEpisodes),
+        this.flowSubscription = mixed$.subscribe(([ororoShow, tmdbEpisodes]) =>
+            this.setEpisodes(ororoShow, tmdbEpisodes),
         );
     }
 
