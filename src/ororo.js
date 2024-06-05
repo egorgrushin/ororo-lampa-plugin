@@ -13,7 +13,7 @@ export const createOroroApi = () => {
         }).then((response) => response.json());
     };
 
-    const getShows = () => request('shows');
+    const getShows = () => request('shows').then((data) => data.shows);
 
     return {
         getShows,
