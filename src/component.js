@@ -44,6 +44,7 @@ export class OroroComponent {
     fetchOroroShow$(movie) {
         return this.ororoShows$.pipe(
             map((ororoShows) => ororoShows.find((ororoShow) => ororoShow.tmdb_id === movie.id.toString())),
+            switchMap((show) => this.ororoApi.getShow(show.id)),
         );
     }
 
