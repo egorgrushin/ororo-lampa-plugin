@@ -2,11 +2,13 @@ import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils'
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
-import { BehaviorSubject, combineLatest, from, Observable, of } from 'rxjs';
-import { distinctUntilKeyChanged, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { createAffectLoadingState } from './affectLoadingState';
-import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
+import { BehaviorSubject, from, Observable } from 'rxjs';
+import { catchError, distinctUntilKeyChanged, filter, map, switchMap, tap } from 'rxjs/operators';
+import { CONTENT_LOADING_TEMPLATE, EMPTY_TEMPLATE, EPISODE_TEMPLATE } from './components';
 import { createOroroApi } from './ororo';
+import { throwError } from 'rxjs/internal/observable/throwError';
+import { EMPTY } from 'rxjs/internal/observable/empty';
+import { createAffectLoadingState } from './affectLoadingState';
 
 export class OroroComponent {
     constructor(input) {
@@ -41,25 +43,28 @@ export class OroroComponent {
         this.filter.chosen(FILTER_KEY, [text ?? translate(TEXTS.EmptyFilter)]);
     }
 
-    fetchOroroShow$(movie) {
-        return this.ororoShows$.pipe(
-            map((ororoShows) => ororoShows.find((ororoShow) => ororoShow.tmdb_id === movie.id.toString())),
-            switchMap((show) => this.ororoApi.getShow(show.id)),
-        );
-    }
+    setEpisodes(ororoShow, seasonNumber, tmdbEpisodes) {
+        const ororoEpisodes = ororoShow.episodesBySeasons[seasonNumber];
 
-    setEpisodes(ororoShow, tmdbEpisodes) {
-        console.log(ororoShow);
-        const episodesHtml = tmdbEpisodes.map((episode) => {
-            const episodeNumber = episode.episode_number;
+        const tmdbEpisodesMap = Object.entries(tmdbEpisodes).reduce((memo, tmdbEpisode) => {
+            memo[tmdbEpisode.episode_number] = tmdbEpisode;
+            return memo;
+        }, {});
+
+        const episodesHtml = ororoEpisodes.map((episode) => {
+            const episodeNumber = episode.number;
+            const tmdbEpisode = tmdbEpisodesMap[episodeNumber.toString()];
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episodeNumber}`);
+            const duration = tmdbEpisode ? Lampa.Utils.secondsToTime(tmdbEpisode.runtime * 60, true) : undefined;
+            const previewImageUrl = tmdbEpisode ? Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`) : undefined;
+            const airDate = tmdbEpisode?.air_date ?? episode.airdate;
             const enrichedEpisode = {
                 ...episode,
                 episodeNumber,
                 episodeNumberFormatted: pad(episodeNumber, 2),
-                duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
-                releaseDate: Lampa.Utils.parseTime(episode.air_date).full,
-                previewImageUrl: Lampa.TMDB.image(`t/p/w300${episode.still_path}`),
+                duration,
+                releaseDate: Lampa.Utils.parseTime(airDate).full,
+                previewImageUrl,
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
@@ -78,47 +83,65 @@ export class OroroComponent {
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
-    initOroroShows() {
-        this.ororoShows$ = of(undefined).pipe(
-            switchMap(() => from(this.ororoApi.getShows())),
-            shareReplay({ refCount: true, bufferSize: 1 }),
+    initFlow(movie) {
+        const affectActivityLoadingState = createAffectLoadingState(({ isLoading }) =>
+            this.setActivityIsLoading(isLoading),
         );
-    }
-
-    initFlow() {
-        this.initOroroShows();
-
-        const affectLoadingState = createAffectLoadingState(({ isLoading }) => this.setIsLoading(isLoading));
-
-        const mixed$ = this.filter$.pipe(
-            switchMap(({ seasonNumber }) =>
-                affectLoadingState(
-                    combineLatest([this.fetchOroroShow$(this.movie), this.fetchTmdbEpisodes$(seasonNumber)]),
+        const affectBodyLoadingState = createAffectLoadingState(({ isLoading }) => this.setBodyIsLoading(isLoading));
+        this.flowSubscription = affectActivityLoadingState(
+            from(this.ororoApi.getShowsFragments()).pipe(
+                map((ororoShowsFragments) =>
+                    ororoShowsFragments.find(({ tmdb_id }) => tmdb_id === movie.id.toString()),
                 ),
+                switchMap((ororoShowFragment) => {
+                    if (!ororoShowFragment) return throwError(() => new Error(translate(TEXTS.NoOroroShow)));
+                    return from(this.ororoApi.getShow(ororoShowFragment.id));
+                }),
+                map((ororoShow) => this.formatOroroShow(ororoShow)),
+                switchMap((ororoShow) => {
+                    this.getFilter$(ororoShow).pipe(map((filter) => [ororoShow, filter]));
+                }),
+                switchMap(([ororoShow, { seasonNumber }]) =>
+                    affectBodyLoadingState(
+                        this.fetchTmdbEpisodes$(seasonNumber).pipe(
+                            map((tmdbEpisodes) => [ororoShow, seasonNumber, tmdbEpisodes]),
+                        ),
+                    ),
+                ),
+                catchError((error) => {
+                    this.renderError(error);
+                    return EMPTY;
+                }),
             ),
-        );
-
-        this.flowSubscription = mixed$.subscribe(([ororoShow, tmdbEpisodes]) =>
-            this.setEpisodes(ororoShow, tmdbEpisodes),
-        );
+        ).subscribe(([ororoShow, tmdbEpisodes]) => this.setEpisodes(ororoShow, seasonNumber, tmdbEpisodes));
     }
 
-    initFilter() {
-        const validSeasons = this.movie.seasons.filter(({ season_number }) => season_number > 0);
-        const selectedSeasonId = validSeasons[0].id;
-        const filterItems = validSeasons.map((season) => ({
-            id: season.id,
-            title: season.name,
-            seasonNumber: season.season_number,
-            isSelected: season.id === selectedSeasonId,
-        }));
+    formatOroroShow(ororoShow) {
+        ororoShow.episodesBySeasons = ororoShow.episodes.reduce((memo, episode) => {
+            const season = episode.season;
+            memo[season] = memo[season] ?? [];
+            memo[season].push(episode);
+            return memo;
+        }, {});
+
+        ororoShow.seasons = Object.keys(ororoShow.episodesBySeasons);
+        return ororoShow;
+    }
+
+    getFilter$(ororoShow) {
+        const validSeasons = ororoShow.seasons.filter((seasonNumber) => seasonNumber > 0);
+        const selectedSeasonId = validSeasons[0];
+        const filterItems = validSeasons.map((seasonNumber) => {
+            const id = seasonNumber;
+            return {
+                id,
+                title: `${translate(TEXTS.SeasonTitle)} ${seasonNumber}`,
+                seasonNumber: seasonNumber,
+                isSelected: id === selectedSeasonId,
+            };
+        });
         const initialFilterItem = filterItems.find(({ isSelected }) => isSelected);
         this.filterSubject = new BehaviorSubject(initialFilterItem);
-        this.filter$ = this.filterSubject.pipe(
-            tap((selectedFilterItem) => this.setSelectedFilterText(selectedFilterItem?.title)),
-            filter((selectedFilterItem) => !!selectedFilterItem),
-            distinctUntilKeyChanged('id'),
-        );
         this.filter.set(FILTER_KEY, filterItems);
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
@@ -126,6 +149,11 @@ export class OroroComponent {
             Lampa.Select.close();
             this.filterSubject.next(selectedFilterItem);
         };
+        return this.filterSubject.pipe(
+            tap((selectedFilterItem) => this.setSelectedFilterText(selectedFilterItem?.title)),
+            filter((selectedFilterItem) => !!selectedFilterItem),
+            distinctUntilKeyChanged('id'),
+        );
     }
 
     initBody() {
@@ -135,9 +163,15 @@ export class OroroComponent {
         this.explorer.appendHead(this.filter.render());
     }
 
+    renderError(error) {
+        this.replaceBodyTemplate(EMPTY_TEMPLATE, {
+            title: translate(TEXTS.Oops),
+            description: error.message,
+        });
+    }
+
     init() {
-        this.initFilter();
-        this.initFlow();
+        this.initFlow(this.movie);
         this.initBody();
     }
 
@@ -162,14 +196,22 @@ export class OroroComponent {
         // Lampa.Player.playlist([item]);
     }
 
-    setIsLoading(isLoading) {
-        if (isLoading) {
-            this.scroll.clear();
-            this.scroll.reset();
-            this.scroll.body().append(getTemplate(CONTENT_LOADING_TEMPLATE));
-        } else {
+    setActivityIsLoading(isLoading) {
+        this.activity.loader(isLoading);
+        if (!isLoading) {
             this.activity.toggle();
         }
+    }
+
+    replaceBodyTemplate(template, data) {
+        this.scroll.clear();
+        this.scroll.reset();
+        this.scroll.body().append(getTemplate(template, data));
+    }
+
+    setBodyIsLoading(isLoading) {
+        if (!isLoading) return;
+        this.replaceBodyTemplate(CONTENT_LOADING_TEMPLATE);
     }
 
     initController() {
