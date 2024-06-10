@@ -1,10 +1,6 @@
-import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
+import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE, EMPTY_TEMPLATE } from './components';
 
-const ALL_TEMPLATES = [
-    CONTENT_LOADING_TEMPLATE,
-    EPISODE_TEMPLATE,
-];
-
+const ALL_TEMPLATES = [CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE, EMPTY_TEMPLATE];
 
 export const registerTemplates = () => {
     ALL_TEMPLATES.forEach(({ name, template }) => {
