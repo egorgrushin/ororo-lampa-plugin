@@ -111,7 +111,9 @@ export class OroroComponent {
                     return EMPTY;
                 }),
             ),
-        ).subscribe(([ororoShow, tmdbEpisodes]) => this.setEpisodes(ororoShow, seasonNumber, tmdbEpisodes));
+        ).subscribe(([ororoShow, seasonNumber, tmdbEpisodes]) =>
+            this.setEpisodes(ororoShow, seasonNumber, tmdbEpisodes),
+        );
     }
 
     formatOroroShow(ororoShow) {
