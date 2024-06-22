@@ -30,6 +30,7 @@ export class OroroComponent {
             this.isInit = true;
         }
         Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
+        this.initController();
     }
 
     fetchTmdbEpisodes$(seasonNumber) {
@@ -178,7 +179,6 @@ export class OroroComponent {
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
-        Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
         this.activity.toggle();
     }
 
@@ -191,7 +191,6 @@ export class OroroComponent {
     }
 
     init() {
-        this.initController();
         this.initBody();
         // this.initFlow(this.movie);
     }
