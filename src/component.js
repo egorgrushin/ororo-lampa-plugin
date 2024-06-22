@@ -179,6 +179,7 @@ export class OroroComponent {
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
+        this.activity.toggle();
     }
 
     renderError(error) {
@@ -192,7 +193,7 @@ export class OroroComponent {
     init() {
         this.initController();
         this.initBody();
-        this.initFlow(this.movie);
+        // this.initFlow(this.movie);
     }
 
     create() {
