@@ -194,7 +194,7 @@ export class OroroComponent {
 
     init() {
         this.initBody();
-        // this.initFlow(this.movie);
+        this.initFlow(this.movie);
     }
 
     create() {
