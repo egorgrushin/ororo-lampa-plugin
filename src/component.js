@@ -31,7 +31,7 @@ export class OroroComponent {
             this.init();
         }
         Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
-        // this.initController();
+        this.initController();
     }
 
     fetchTmdbEpisodes$(seasonNumber) {
@@ -162,8 +162,6 @@ export class OroroComponent {
         const initialFilterItem = filterItems.find(({ isSelected }) => isSelected);
         this.filterSubject = new BehaviorSubject(initialFilterItem);
         this.filter.set(FILTER_KEY, filterItems);
-        // hide filter search button
-        this.filter.render().find('.filter--search').addClass('hide');
         this.filter.onSelect = (type, selectedFilterItem) => {
             Lampa.Select.close();
             this.filterSubject.next(selectedFilterItem);
@@ -180,6 +178,8 @@ export class OroroComponent {
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
+        // hide filter search button
+        this.filter.render().find('.filter--search').addClass('hide');
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
         this.activity.toggle();
     }
@@ -261,7 +261,7 @@ export class OroroComponent {
                 Lampa.Activity.backward();
             },
         });
-        Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
+        Lampa.Controller.toggle(CONTENT_CONTROLLER_NAME);
     }
 
     back() {
