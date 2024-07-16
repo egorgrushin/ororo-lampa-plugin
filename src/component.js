@@ -51,7 +51,8 @@ export class OroroComponent {
             return memo;
         }, {});
 
-        const episodesHtml = ororoEpisodes.map((episode) => {
+        this.scroll.clear();
+        ororoEpisodes.forEach((episode) => {
             const episodeNumber = episode.episodeNumber;
             const tmdbEpisode = tmdbEpisodesMap[episodeNumber];
             const timeline_hash = Lampa.Utils.hash(
@@ -74,13 +75,8 @@ export class OroroComponent {
             const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
             imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.loaded);
-
-            return episodeHtml;
+            this.scroll.append(episodeHtml);
         });
-
-        this.scroll.clear();
-        this.scroll.body().append(...episodesHtml);
-        this.explorer.appendFiles(this.scroll.render());
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
