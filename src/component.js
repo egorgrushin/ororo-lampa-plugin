@@ -72,6 +72,8 @@ export class OroroComponent {
                 .find(`.${EPISODE_TEMPLATE.classNames.timeline}`)
                 .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
 
+            episodeHtml.on('hover:focus', (e) => this.scroll.update($(e.target), true));
+
             const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
             imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.loaded);
@@ -175,6 +177,7 @@ export class OroroComponent {
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
+        // this line sets height to scroll container. It enables scrolling
         this.scroll.minus(this.explorer.render().find('.explorer__files-head'));
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
