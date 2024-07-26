@@ -1,15 +1,4 @@
-:global .focus {
-	content: '';
-	position: absolute;
-	top: -0.6em;
-	left: -0.6em;
-	right: -0.6em;
-	bottom: -0.6em;
-	border-radius: .7em;
-	border: solid .3em #fff;
-	z-index: -1;
-	pointer-events: none
-}
+
 
 .root {
 	display: flex;
@@ -21,6 +10,19 @@
 	
 	&:last-child {
 		margin-bottom: 0;
+	}
+	
+	:global(.focus) {
+		content: '';
+		position: absolute;
+		top: -0.6em;
+		left: -0.6em;
+		right: -0.6em;
+		bottom: -0.6em;
+		border-radius: .7em;
+		border: solid .3em #fff;
+		z-index: -1;
+		pointer-events: none
 	}
 }
 
