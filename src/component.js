@@ -34,6 +34,17 @@ export class OroroComponent {
         this.initController();
     }
 
+    toPlayElement = (enrichedEpisode) => {
+        return {
+            title: enrichedEpisode.name,
+            url: enrichedEpisode.downloadUrl,
+            // quality: file.qualitys,
+            // timeline: file.timeline,
+            // subtitles: file.subtitles,
+            // callback: file.mark,
+        };
+    };
+
     fetchTmdbEpisodes$(seasonNumber) {
         const tmdbUrl = `tv/${this.movie.id}/season/${seasonNumber}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
         const url = Lampa.TMDB.api(tmdbUrl);
@@ -42,6 +53,12 @@ export class OroroComponent {
 
     setSelectedFilterText(text) {
         this.filter.chosen(FILTER_KEY, [text ?? translate(TEXTS.EmptyFilter)]);
+    }
+
+    async selectEpisode(enrichedEpisode) {
+        enrichedEpisode.downloadUrl = await this.ororoApi.getEpisodeDownloadUrl(enrichedEpisode);
+        const playElement = this.toPlayElement(enrichedEpisode);
+        Lampa.Player.play(playElement);
     }
 
     setEpisodes(ororoShow, seasonNumber, tmdbEpisodes) {
@@ -72,7 +89,9 @@ export class OroroComponent {
                 .find(`.${EPISODE_TEMPLATE.classNames.timeline}`)
                 .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
 
-            episodeHtml.on('hover:focus', (e) => this.scroll.update($(e.target), true));
+            episodeHtml
+                .on('hover:focus', (e) => this.scroll.update($(e.target), true))
+                .on('hover:enter', () => this.selectEpisode(enrichedEpisode));
 
             const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
