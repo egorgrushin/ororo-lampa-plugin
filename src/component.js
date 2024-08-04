@@ -27,11 +27,11 @@ export class OroroComponent {
         console.log(seasonSelectItem);
     }
 
-    initializeSeasonSelector(seasons) {
-        const selectedSeasonId = '';
-        const seasonSelectItems = seasons.map((season) => ({
+    initializeSeasonSelector() {
+        const selectedSeasonId = 215686;
+        const seasonSelectItems = this.movie.seasons.map((season) => ({
             id: season.id,
-            title: season.title,
+            title: season.name,
             isSelected: season.id === selectedSeasonId,
         }));
         const selectedSeasonTitle =
@@ -53,7 +53,7 @@ export class OroroComponent {
         this.scroll.minus(this.render().find('.explorer__files-head'));
         this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
         this.isInitialized = true;
-        this.initializeSeasonSelector([]);
+        this.initializeSeasonSelector();
     }
 
     create() {
