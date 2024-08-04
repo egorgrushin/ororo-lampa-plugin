@@ -4,6 +4,8 @@ import { translate } from './utils';
 import { resetTemplates } from './templates';
 import { registerTexts, TEXTS } from './texts';
 
+
+
 const open = (cardData) => {
     resetTemplates();
     Lampa.Activity.push({

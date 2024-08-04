@@ -4,22 +4,22 @@ import { CONTENT_CONTROLLER_NAME, FILTER_SEASONS_KEY } from './constants';
 import { TEXTS } from './texts';
 
 export class OroroComponent {
-    constructor(movie) {
-        this.cardData = cardData;
+    constructor(input) {
+        this.movie = input.movie;
         this.request = new Lampa.Reguest();
         this.scroll = new Lampa.Scroll({ mask: true, over: true });
-        this.explorer = new Lampa.Explorer(cardData);
-        this.filter = new Lampa.Filter(cardData);
+        this.explorer = new Lampa.Explorer(input.movie);
+        this.filter = new Lampa.Filter(input.movie);
         this.isInitialized = false;
         this.last = undefined;
         this.activity = undefined;
-        console.log(this.cardData);
+        console.log(input.movie);
     }
 
     start() {
         if (getCurrentActivity() !== this.activity) return;
         if (!this.isInitialized) { this.initialize(); }
-        Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.cardData.movie));
+        Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
         this.initController();
     }
 
