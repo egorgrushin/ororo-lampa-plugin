@@ -77,7 +77,7 @@
   };
 
   var OroroComponent = /*#__PURE__*/function () {
-    function OroroComponent(cardData) {
+    function OroroComponent(movie) {
       _classCallCheck(this, OroroComponent);
       this.cardData = cardData;
       this.request = new Lampa.Reguest();
@@ -214,7 +214,7 @@
       url: '',
       title: translate(TEXTS.Title),
       component: COMPONENT_NAME,
-      cardData: cardData,
+      movie: cardData.movie,
       page: 1
     });
   };

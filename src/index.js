@@ -10,7 +10,7 @@ const open = (cardData) => {
         url: '',
         title: translate(TEXTS.Title),
         component: COMPONENT_NAME,
-        cardData,
+        movie: cardData.movie,
         page: 1,
     });
 };
