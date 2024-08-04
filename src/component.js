@@ -50,17 +50,17 @@ export class OroroComponent {
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
-        this.scroll.minus(this.explorer.render().find('.explorer__files-head'));
+        this.scroll.minus(this.render().find('.explorer__files-head'));
         this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
         this.isInitialized = true;
     }
 
     create() {
-        this.render();
+        return this.render();
     }
 
     render() {
-        this.explorer.render();
+        return this.explorer.render();
     }
 
     play() {
@@ -85,7 +85,7 @@ export class OroroComponent {
     initController() {
         Lampa.Controller.add(CONTENT_CONTROLLER_NAME, {
             toggle: () => {
-                Lampa.Controller.collectionSet(this.scroll.render(), this.explorer.render());
+                Lampa.Controller.collectionSet(this.scroll.render(), this.render());
                 Lampa.Controller.collectionFocus(this.last ?? false, this.scroll.render());
             },
             up: () => {
