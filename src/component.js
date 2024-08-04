@@ -84,29 +84,42 @@ export class OroroComponent {
     }
     initController() {
         Lampa.Controller.add(CONTENT_CONTROLLER_NAME, {
-            toggle() {
+            toggle: () => {
                 Lampa.Controller.collectionSet(this.scroll.render(), this.explorer.render());
                 Lampa.Controller.collectionFocus(this.last ?? false, this.scroll.render());
             },
-            up() {
+            up: () => {
                 if (Navigator.canmove('up')) return Navigator.move('up');
                 Lampa.Controller.toggle('head');
             },
-            down() {
+            down: () => {
                 Navigator.move('down');
             },
-            right() {
+            right: () => {
                 if (Navigator.canmove('right')) return Navigator.move('right');
                 this.filter.show(translate('title_filter'), FILTER_SEASONS_KEY);
             },
-            left() {
+            left: () => {
                 if (Navigator.canmove('left')) return Navigator.move('left');
                 Lampa.Controller.toggle('menu');
             },
-            back() {
+            back: () => {
                 Lampa.Activity.backward();
             },
         });
         Lampa.Controller.toggle(CONTENT_CONTROLLER_NAME);
+    }
+
+    back() {
+        Lampa.Activity.backward();
+    };
+    pause() {};
+    stop() {};
+
+    destroy() {
+        // this.network.clear();
+        this.filter.destroy();
+        this.explorer.destroy();
+        this.scroll.destroy();
     }
 }
