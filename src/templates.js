@@ -1,5 +1,7 @@
+import { PLUGIN_NAME } from './constants';
+
 export const TEMPLATE_NAMES = {
-    ContentLoading: 'content-loading',
+    ContentLoading: `${PLUGIN_NAME}-content-loading`,
 };
 
 const CONTENT_LOADING_TEMPLATE = `

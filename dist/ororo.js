@@ -45,8 +45,14 @@
     return Lampa.Lang.translate(key);
   };
 
+  var PLUGIN_NAME = 'ororo';
+  var COMPONENT_NAME = 'ororo';
+  var OPEN_BUTTON_ID = "".concat(PLUGIN_NAME, "-open-button");
+  var FILTER_SEASONS_KEY = "seasons";
+  var CONTENT_CONTROLLER_NAME = "content";
+
   var TEMPLATE_NAMES = {
-    ContentLoading: 'content-loading'
+    ContentLoading: "".concat(PLUGIN_NAME, "-content-loading")
   };
   var CONTENT_LOADING_TEMPLATE = "\n    <div class=\"online-empty\">\n        <div class=\"broadcast__scan\"><div></div></div>\n        <div class=\"online-empty__templates\">\n            <div class=\"online-empty-template selector\">\n                <div class=\"online-empty-template__ico\"></div>\n                <div class=\"online-empty-template__body\"></div>\n            </div>\n            <div class=\"online-empty-template\">\n                <div class=\"online-empty-template__ico\"></div>\n                <div class=\"online-empty-template__body\"></div>\n            </div>\n            <div class=\"online-empty-template\">\n                <div class=\"online-empty-template__ico\"></div>\n                <div class=\"online-empty-template__body\"></div>\n            </div>\n        </div>\n    </div>\n";
   var resetTemplates = function resetTemplates() {
@@ -56,20 +62,16 @@
     return Lampa.Template.get(name);
   };
 
-  var PLUGIN_NAME = 'ororo';
-  var COMPONENT_NAME = 'ororo';
-  var OPEN_BUTTON_ID = "".concat(COMPONENT_NAME, "-open-button");
-  var FILTER_SEASONS_KEY = "seasons";
-  var CONTENT_CONTROLLER_NAME = "content";
-
   var TEXTS = {
-    Title: "".concat(COMPONENT_NAME, "-title"),
-    EmptyFilter: "".concat(COMPONENT_NAME, "-empty-filter")
+    Title: "".concat(PLUGIN_NAME, "-title"),
+    EmptyFilter: "".concat(PLUGIN_NAME, "-empty-filter")
   };
   var registerTexts = function registerTexts() {
     Lampa.Lang.add(_defineProperty(_defineProperty({}, TEXTS.Title, {
+      ru: 'Ororo.tv',
       en: 'Ororo.tv'
     }), TEXTS.EmptyFilter, {
+      ru: 'Empty',
       en: 'Empty'
     }));
   };
@@ -221,7 +223,7 @@
     var button = $('<div></div>');
     button.attr('id', OPEN_BUTTON_ID);
     // required classes for correct button rendering
-    button.addClass(['full-start__button', 'selector']);
+    button.addClass('full-start__button selector');
     button.attr('data-subtitle', "".concat(manifest.name, " v").concat(manifest.version));
     button.text(translate(TEXTS.Title));
     button.on('hover:enter', function () {

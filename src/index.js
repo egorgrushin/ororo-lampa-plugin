@@ -20,7 +20,7 @@ const addOpenButtonToCard = (manifest, whereToRender, cardData) => {
     const button = $('<div></div>');
     button.attr('id', OPEN_BUTTON_ID);
     // required classes for correct button rendering
-    button.addClass(['full-start__button', 'selector']);
+    button.addClass('full-start__button selector');
     button.attr('data-subtitle', `${manifest.name} v${manifest.version}`);
     button.text(translate(TEXTS.Title));
     button.on('hover:enter', () => open(cardData));
