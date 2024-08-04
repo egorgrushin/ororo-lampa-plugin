@@ -3,9 +3,8 @@ import babel from '@rollup/plugin-babel';
 
 export default {
     input: 'src/index.js',
-
     output: {
-        file: 'dist/ororo.js',
+        file: 'dist/index.js',
         generatedCode: 'es5',
         format: 'iife',
     },
