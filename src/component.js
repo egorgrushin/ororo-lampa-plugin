@@ -53,6 +53,7 @@ export class OroroComponent {
         this.scroll.minus(this.render().find('.explorer__files-head'));
         this.scroll.body().append(getTemplate(TEMPLATE_NAMES.ContentLoading));
         this.isInitialized = true;
+        this.initializeSeasonSelector([]);
     }
 
     create() {
