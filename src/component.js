@@ -2,9 +2,8 @@ import { getCurrentActivity, translate } from './utils';
 import { getTemplate, TEMPLATE_NAMES } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { delay, switchMap, tap } from 'rxjs/operators';
-import { of } from 'rxjs/internal/observable/of';
 import { createAffectLoadingState } from './affectLoadingState';
 
 export class OroroComponent {
@@ -55,7 +54,7 @@ export class OroroComponent {
         this.filter.set(FILTER_KEY, filterItems);
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
-        this.filterSubject = new Subject(selectedFilterItem);
+        this.filterSubject = new BehaviorSubject(selectedFilterItem);
         this.initFlow();
         this.filter.onSelect = (type, selectedFilterItem) => this.filterSubject.next(selectedFilterItem);
     }
