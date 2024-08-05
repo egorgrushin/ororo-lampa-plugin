@@ -66,14 +66,15 @@ export class OroroComponent {
     }
 
     setEpisodes(episodes) {
-        const locale = getCurrentLanguage();
-        const dateTimeFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
+        // const locale = getCurrentLanguage();
+        // const dateTimeFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
         const episodesHtml = episodes.map((episode) => {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
                 ...episode,
                 duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
-                releaseDate: dateTimeFormatter.format(new Date(episode.air_date)),
+                releaseDate: Lampa.Utils.parseTime(episode.air_date).full,
+                // releaseDate: dateTimeFormatter.format(new Date(episode.air_date)),
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
