@@ -97,7 +97,7 @@ export class OroroComponent {
 
     initFilter() {
         const validSeasons = this.movie.seasons.filter(({ season_number }) => season_number > 0);
-        const selectedSeasonId = validSeasons[0];
+        const selectedSeasonId = validSeasons[0].id;
         const filterItems = validSeasons.map((season) => ({
             id: season.id,
             title: season.name,
