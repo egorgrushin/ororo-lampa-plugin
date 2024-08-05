@@ -6,6 +6,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { delay, distinctUntilKeyChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
 import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
+import { Observable } from 'rxjs/internal/Observable';
 
 export class OroroComponent {
     constructor(input) {
@@ -19,6 +20,22 @@ export class OroroComponent {
         this.activity = undefined;
     }
 
+    request$(url) {
+        return new Observable((subscriber) => {
+            this.request.timeout(1000 * 10);
+            this.request.native(
+                url,
+                (data) => {
+                    subscriber.next(data.episodes);
+                    subscriber.complete();
+                },
+                (err) => {
+                    subscriber.error(err);
+                },
+            );
+        });
+    }
+
     start() {
         if (getCurrentActivity() !== this.activity) return;
         if (!this.isInit) {
@@ -30,11 +47,15 @@ export class OroroComponent {
     }
 
     fetchEpisodes$(selectedFilterItem) {
-        return of([
-            { id: 671, season: 6, number: '2', airdate: '1999-09-30', name: 'The One Where Ross Hugs Rachel' },
-            { id: 676, season: 5, number: '7', airdate: '1999-11-04', name: 'The One Where Phoebe Runs' },
-            { id: 679, season: 6, number: '10', airdate: '1999-12-16', name: 'The One with the Routine' },
-        ]).pipe(delay(1500));
+        const season = selectedFilterItem.number;
+        const tmdbUrl = `tv/${this.movie.id}/season/${season}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
+        const url = Lampa.TMDB.api(tmdbUrl);
+        return this.request$(url);
+        // return of([
+        //     { id: 671, season: 6, number: '2', airdate: '1999-09-30', name: 'The One Where Ross Hugs Rachel' },
+        //     { id: 676, season: 5, number: '7', airdate: '1999-11-04', name: 'The One Where Phoebe Runs' },
+        //     { id: 679, season: 6, number: '10', airdate: '1999-12-16', name: 'The One with the Routine' },
+        // ]).pipe(delay(1500));
     }
 
     setSelectedFilterText(text) {
@@ -85,6 +106,7 @@ export class OroroComponent {
         const filterItems = this.movie.seasons.map((season) => ({
             id: season.id,
             title: season.name,
+            number: season.season_number,
             isSelected: season.id === selectedSeasonId,
         }));
         const selectedFilterItem = filterItems.find(({ isSelected }) => isSelected);
