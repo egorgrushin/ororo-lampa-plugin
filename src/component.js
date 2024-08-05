@@ -57,6 +57,7 @@ export class OroroComponent {
             episodeHtml
                 .find(EPISODE_TEMPLATE.classNames.timeline)
                 .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
+            return episodeHtml;
         });
 
         this.scroll.clear();
@@ -133,10 +134,11 @@ export class OroroComponent {
 
     setIsLoading(isLoading) {
         // this.activity.loader(isLoading);
-        this.scroll.clear();
-        this.scroll.reset();
-        this.scroll.body().append(getTemplate(CONTENT_LOADING_TEMPLATE));
-        if (!isLoading) {
+        if (isLoading) {
+            this.scroll.clear();
+            this.scroll.reset();
+            this.scroll.body().append(getTemplate(CONTENT_LOADING_TEMPLATE));
+        } else {
             this.activity.toggle();
         }
     }
