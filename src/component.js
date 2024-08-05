@@ -65,6 +65,7 @@ export class OroroComponent {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
                 ...episode,
+                episodeNumber: episode.number,
                 duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
                 releaseDate: Lampa.Utils.parseTime(episode.air_date).full,
                 previewImageUrl: Lampa.TMDB.image(`t/p/w300${episode.still_path}`),
@@ -73,6 +74,11 @@ export class OroroComponent {
             episodeHtml
                 .find(EPISODE_TEMPLATE.classNames.timeline)
                 .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
+
+            const imgRef = episodeHtml.find(EPISODE_TEMPLATE.classNames.image__background)[0];
+            imgRef.onerror = () => imgRef.remove();
+            imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.imageLoaded);
+
             return episodeHtml;
         });
 
