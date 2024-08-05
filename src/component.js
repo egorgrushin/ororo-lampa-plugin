@@ -3,7 +3,7 @@ import { getTemplate, TEMPLATE_NAMES } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
 import { BehaviorSubject, of } from 'rxjs';
-import { delay, filter, switchMap, tap } from 'rxjs/operators';
+import { delay, filter, switchMap, distinctUntilKeyChanged, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
 
 export class OroroComponent {
@@ -50,6 +50,7 @@ export class OroroComponent {
                 this.setSelectedFilterText(selectedFilterItem?.title);
                 this.closeSelect();
             }),
+            distinctUntilKeyChanged('id'),
             filter((selectedFilterItem) => !!selectedFilterItem),
             switchMap((selectedFilterItem) => affectLoadingState(
                 this.fetchEpisodes$(selectedFilterItem),
