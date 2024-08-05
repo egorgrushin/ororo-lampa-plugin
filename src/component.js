@@ -2,11 +2,10 @@ import { getCurrentActivity, getCurrentLanguage, translate } from './utils';
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
-import { BehaviorSubject, of } from 'rxjs';
-import { delay, distinctUntilKeyChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilKeyChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { createAffectLoadingState } from './affectLoadingState';
 import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
-import { Observable } from 'rxjs/internal/Observable';
 
 export class OroroComponent {
     constructor(input) {
