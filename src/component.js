@@ -72,7 +72,8 @@ export class OroroComponent {
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episode.number}`);
             const enrichedEpisode = {
                 ...episode,
-                releaseDate: dateTimeFormatter.format(new Date(episode.airdate)),
+                duration: Lampa.Utils.secondsToTime(episode.runtime * 60, true),
+                releaseDate: dateTimeFormatter.format(new Date(episode.air_date)),
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
