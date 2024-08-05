@@ -49,7 +49,7 @@
 		transition: opacity .3s
 	}
 	
-	&--loaded {
+	&.loaded {
 		.image__background {
 			opacity: 1
 		}

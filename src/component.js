@@ -77,7 +77,7 @@ export class OroroComponent {
 
             const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
-            imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.imageLoaded);
+            imgRef.onload = () => imgRef.addClass(EPISODE_TEMPLATE.classNames.loaded);
 
             return episodeHtml;
         });
