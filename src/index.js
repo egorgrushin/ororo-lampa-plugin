@@ -1,13 +1,11 @@
 import { OroroComponent } from './component';
 import { COMPONENT_NAME, OPEN_BUTTON_ID, PLUGIN_NAME } from './constants';
 import { translate } from './utils';
-import { resetTemplates } from './templates';
+import { registerTemplates } from './templates';
 import { registerTexts, TEXTS } from './texts';
 
 
-
 const open = (cardData) => {
-    resetTemplates();
     Lampa.Activity.push({
         url: '',
         title: translate(TEXTS.Title),
@@ -31,6 +29,7 @@ const addOpenButtonToCard = (manifest, whereToRender, cardData) => {
 
 const initPlugin = () => {
     registerTexts();
+    registerTemplates();
     const manifest = {
         type: 'video',
         version: '0.0.2',

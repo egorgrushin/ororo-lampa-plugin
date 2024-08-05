@@ -1,34 +1,15 @@
-import { PLUGIN_NAME } from './constants';
+import { CONTENT_LOADING_TEMPLATE, EPISODE_TEMPLATE } from './components';
 
-export const TEMPLATE_NAMES = {
-    ContentLoading: `${PLUGIN_NAME}-content-loading`,
+const ALL_TEMPLATES = [
+    CONTENT_LOADING_TEMPLATE,
+    EPISODE_TEMPLATE,
+];
+
+
+export const registerTemplates = () => {
+    ALL_TEMPLATES.forEach(({ name, template }) => {
+        Lampa.Template.add(name, template);
+    });
 };
 
-/**
- * template from Lampa sources
- */
-const CONTENT_LOADING_TEMPLATE = `
-    <div class="online-empty">
-        <div class="broadcast__scan"><div></div></div>
-        <div class="online-empty__templates">
-            <div class="online-empty-template selector">
-                <div class="online-empty-template__ico"></div>
-                <div class="online-empty-template__body"></div>
-            </div>
-            <div class="online-empty-template">
-                <div class="online-empty-template__ico"></div>
-                <div class="online-empty-template__body"></div>
-            </div>
-            <div class="online-empty-template">
-                <div class="online-empty-template__ico"></div>
-                <div class="online-empty-template__body"></div>
-            </div>
-        </div>
-    </div>
-`;
-
-export const resetTemplates = () => {
-    Lampa.Template.add(TEMPLATE_NAMES.ContentLoading, CONTENT_LOADING_TEMPLATE);
-};
-
-export const getTemplate = (name) => Lampa.Template.get(name);
+export const getTemplate = (template, data) => Lampa.Template.get(template.name, data);
