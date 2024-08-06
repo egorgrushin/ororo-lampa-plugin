@@ -13,12 +13,12 @@ export const createOroroApi = () => {
         }).then((response) => response.json());
     };
 
-    const getShows = () => request('shows').then((data) => data.shows);
+    const getShowsFragments = () => request('shows').then((data) => data.shows);
 
     const getShow = (showId) => request(`shows/${showId}`);
 
     return {
-        getShows,
+        getShowsFragments,
         getShow,
     };
 };
