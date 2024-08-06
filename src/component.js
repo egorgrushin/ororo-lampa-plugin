@@ -26,8 +26,9 @@ export class OroroComponent {
     start() {
         if (getCurrentActivity() !== this.activity) return;
         if (!this.isInit) {
-            this.init();
+            // must be first to prevent infinite calls
             this.isInit = true;
+            this.init();
         }
         Lampa.Background.immediately(Lampa.Utils.cardImgBackgroundBlur(this.movie));
         this.initController();
