@@ -43,7 +43,7 @@ export class OroroComponent {
         return of({});
     }
 
-    setEpisodes(tmdbEpisodes, ororoMovie) {
+    setEpisodes(ororoMovie, tmdbEpisodes) {
         const episodesHtml = tmdbEpisodes.map((episode) => {
             const episodeNumber = episode.episode_number;
             const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episodeNumber}`);
@@ -83,8 +83,8 @@ export class OroroComponent {
             ),
         );
 
-        this.flowSubscription = mixed$.subscribe(([tmdbEpisodes, ororoMovie]) =>
-            this.setEpisodes(tmdbEpisodes, ororoMovie),
+        this.flowSubscription = mixed$.subscribe(([ororoMovie, tmdbEpisodes]) =>
+            this.setEpisodes(ororoMovie, tmdbEpisodes),
         );
     }
 
