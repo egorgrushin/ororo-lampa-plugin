@@ -98,9 +98,7 @@ export class OroroComponent {
                     return from(this.ororoApi.getShow(ororoShowFragment.id));
                 }),
                 map((ororoShow) => this.formatOroroShow(ororoShow)),
-                switchMap((ororoShow) => {
-                    this.getFilter$(ororoShow).pipe(map((filter) => [ororoShow, filter]));
-                }),
+                switchMap((ororoShow) => this.getFilter$(ororoShow).pipe(map((filter) => [ororoShow, filter]))),
                 switchMap(([ororoShow, { seasonNumber }]) =>
                     affectBodyLoadingState(
                         this.fetchTmdbEpisodes$(seasonNumber).pipe(
@@ -164,6 +162,7 @@ export class OroroComponent {
     }
 
     renderError(error) {
+        this.explorer.clearHead();
         this.replaceBodyTemplate(EMPTY_TEMPLATE, {
             title: translate(TEXTS.Oops),
             description: error.message,
