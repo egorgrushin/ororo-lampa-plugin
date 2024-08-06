@@ -175,6 +175,7 @@ export class OroroComponent {
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
         this.explorer.appendHead(this.filter.render());
+        this.scroll.minus(this.explorer.render().find('.explorer__files-head'));
         // hide filter search button
         this.filter.render().find('.filter--search').addClass('hide');
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
