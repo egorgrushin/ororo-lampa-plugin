@@ -1,6 +1,6 @@
 export const createOroroApi = () => {
     const baseUrl = 'https://front.ororo-mirror.tv/api/v2';
-    const token = 'ZWdvcmdydXNoaW5AZ21haWwuY29tOkxhbGFlcHQy';
+    const token = 'dadadasdas';
     const authorization = `Basic ${token}`;
 
     const request = (url) => {
