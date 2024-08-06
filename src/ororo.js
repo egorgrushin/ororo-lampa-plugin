@@ -3,7 +3,7 @@ export const createOroroApi = () => {
 
     const request = (url) => {
         const fullUrl = `${baseUrl}/${url}`;
-        return fetch(fullUrl);
+        return fetch(fullUrl).then((response) => response.json());
     };
 
     const getShows = () => request('shows');
