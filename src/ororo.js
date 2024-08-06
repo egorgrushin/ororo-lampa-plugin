@@ -18,12 +18,11 @@ export const createOroroApi = () => {
 
     const getShow = (showId) => request(`shows/${showId}`);
 
-    const getEpisodeDownloadUrl = (episode) =>
-        request(`episodes/${episode.id}`).then(({ download_url }) => download_url);
+    const getEpisode = (episode) => request(`episodes/${episode.id}`);
 
     return {
         getShowsFragments,
         getShow,
-        getEpisodeDownloadUrl,
+        getEpisode,
     };
 };
