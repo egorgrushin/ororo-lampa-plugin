@@ -80,6 +80,7 @@ export class OroroComponent {
 
         this.scroll.clear();
         this.scroll.body().append(...episodesHtml);
+        this.explorer.appendFiles(this.scroll.render());
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
@@ -274,7 +275,7 @@ export class OroroComponent {
 
     destroy() {
         this.flowSubscription.unsubscribe();
-        // this.network.clear();
+        this.request.clear();
         this.filter.destroy();
         this.explorer.destroy();
         this.scroll.destroy();
