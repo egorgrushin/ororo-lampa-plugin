@@ -15,7 +15,10 @@ export const createOroroApi = () => {
 
     const getShows = () => request('shows').then((data) => data.shows);
 
+    const getShow = (showId) => request(`shows/${showId}`);
+
     return {
         getShows,
+        getShow,
     };
 };
