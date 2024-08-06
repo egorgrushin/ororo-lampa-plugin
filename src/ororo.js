@@ -2,14 +2,15 @@ export const createOroroApi = () => {
     const baseUrl = 'https://front.ororo-mirror.tv/api/v2';
     const login = localStorage.getItem('ororo_login');
     const password = localStorage.getItem('ororo_password');
-    const base64 = btoa(`${login}:${password}`);
+    const encoded = btoa(`${login}:${password}`);
 
     const request = (url) => {
         const fullUrl = `${baseUrl}/${url}`;
 
         return fetch(fullUrl, {
             headers: {
-                Authorization: `Basic ${base64}`,
+                // ororo.tv не умеет по другому
+                Authorization: `Basic ${encoded}`,
             },
         }).then((response) => response.json());
     };
