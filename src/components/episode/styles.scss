@@ -12,7 +12,7 @@
 		margin-bottom: 0;
 	}
 	
-	:global(.focus) {
+	&:global(.focus) {
 		content: '';
 		position: absolute;
 		top: -0.6em;
