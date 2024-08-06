@@ -43,7 +43,7 @@ export class OroroComponent {
 
     fetchOroroShow$(movie) {
         return this.ororoShows$.pipe(
-            map((ororoShows) => ororoShows.filter((ororoShow) => ororoShow.tmdb_id === movie.id)),
+            map((ororoShows) => ororoShows.find((ororoShow) => ororoShow.tmdb_id === movie.id.toString())),
         );
     }
 
