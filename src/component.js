@@ -45,26 +45,25 @@ export class OroroComponent {
 
     setEpisodes(ororoShow, seasonNumber, tmdbEpisodes) {
         const ororoEpisodes = ororoShow.episodesBySeasons[seasonNumber];
-
-        const tmdbEpisodesMap = Object.entries(tmdbEpisodes).reduce((memo, tmdbEpisode) => {
-            memo[tmdbEpisode.episode_number] = tmdbEpisode;
+        const tmdbEpisodesMap = tmdbEpisodes.reduce((memo, tmdbEpisode) => {
+            memo[tmdbEpisode.episodeNumber] = tmdbEpisode;
             return memo;
         }, {});
 
         const episodesHtml = ororoEpisodes.map((episode) => {
-            const episodeNumber = episode.number;
-            const tmdbEpisode = tmdbEpisodesMap[episodeNumber.toString()];
-            const timeline_hash = Lampa.Utils.hash(`${this.movie.original_title}:${episode.season}:${episodeNumber}`);
+            const episodeNumber = episode.episodeNumber;
+            const tmdbEpisode = tmdbEpisodesMap[episodeNumber];
+            const timeline_hash = Lampa.Utils.hash(
+                `${this.movie.original_title}:${episode.seasonNumber}:${episodeNumber}`,
+            );
             const duration = tmdbEpisode ? Lampa.Utils.secondsToTime(tmdbEpisode.runtime * 60, true) : undefined;
-            const previewImageUrl = tmdbEpisode ? Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`) : undefined;
-            const airDate = tmdbEpisode?.air_date ?? episode.airdate;
+            const airDate = tmdbEpisode?.airDate ?? episode.airDate;
             const enrichedEpisode = {
                 ...episode,
-                episodeNumber,
                 episodeNumberFormatted: pad(episodeNumber, 2),
                 duration,
                 releaseDate: Lampa.Utils.parseTime(airDate).full,
-                previewImageUrl,
+                previewImageUrl: tmdbEpisode?.previewImageUrl,
             };
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
             episodeHtml
@@ -102,6 +101,7 @@ export class OroroComponent {
                 switchMap(([ororoShow, { seasonNumber }]) =>
                     affectBodyLoadingState(
                         this.fetchTmdbEpisodes$(seasonNumber).pipe(
+                            map((tmdbEpisodes) => this.formatTmdbEpisodes(tmdbEpisodes)),
                             map((tmdbEpisodes) => [ororoShow, seasonNumber, tmdbEpisodes]),
                         ),
                     ),
@@ -116,15 +116,33 @@ export class OroroComponent {
         );
     }
 
-    formatOroroShow(ororoShow) {
-        ororoShow.episodesBySeasons = ororoShow.episodes.reduce((memo, episode) => {
-            const season = episode.season;
-            memo[season] = memo[season] ?? [];
-            memo[season].push(episode);
-            return memo;
-        }, {});
+    formatTmdbEpisodes(tmdbEpisodes) {
+        return tmdbEpisodes.map((tmdbEpisode) => ({
+            ...tmdbEpisode,
+            airDate: tmdbEpisode.air_date,
+            episodeNumber: tmdbEpisode.episode_number,
+            previewImageUrl: Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`),
+        }));
+    }
 
-        ororoShow.seasons = Object.keys(ororoShow.episodesBySeasons);
+    formatOroroShow(ororoShow) {
+        ororoShow.episodesBySeasons = ororoShow.episodes
+            .map((episode) => ({
+                ...episode,
+                airDate: episode.airdate,
+                episodeNumber: parseInt(episode.number, 10),
+                seasonNumber: episode.season,
+            }))
+            .sort((a, b) => (a.episodeNumber > b.episodeNumber ? 1 : -1))
+            .reduce((memo, episode) => {
+                const season = episode.seasonNumber;
+                memo[season] = memo[season] ?? [];
+                memo[season].push(episode);
+                return memo;
+            }, {});
+        ororoShow.seasons = Object.keys(ororoShow.episodesBySeasons)
+            .map((seasonNumber) => parseInt(seasonNumber, 10))
+            .sort((a, b) => (a > b ? 1 : -1));
         return ororoShow;
     }
 
