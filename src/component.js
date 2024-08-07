@@ -40,7 +40,7 @@ export class OroroComponent {
             title: enrichedEpisode.name,
             url: enrichedEpisode.downloadUrl,
             // quality: file.qualitys,
-            // timeline: file.timeline,
+            timeline: enrichedEpisode.timeline,
             // [{index:integer, label:string, url:string}]
             subtitles: enrichedEpisode.subtitles.map((subtitle, index) => ({
                 index,
