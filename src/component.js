@@ -50,8 +50,16 @@ export class OroroComponent {
         };
     };
 
-    fetchTmdbFragment$(ororoFragment, seasonNumber) {
-        if (!ororoFragment.isShow) return of([]);
+    mapTmdbMovieToEpisode(movie) {
+        return {
+            ...movie,
+            airDate: movie.release_date,
+            episodeNumber: 1,
+            previewImageUrl: Lampa.TMDB.image(`t/p/w300${movie.backdrop_path}`),
+        };
+    }
+
+    fetchTmdbEpisodes$(seasonNumber) {
         const tmdbUrl = `tv/${this.movie.id}/season/${seasonNumber}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
         const url = Lampa.TMDB.api(tmdbUrl);
         return this.request$(url);
@@ -137,10 +145,29 @@ export class OroroComponent {
         );
     }
 
+    getTmdbEpisodes$(ororoFragment, seasonNumber) {
+        const isShow = ororoFragment.isShow;
+        const tmdbFragment$ = isShow ? this.fetchTmdbEpisodes$(seasonNumber) : of(this.movie);
+
+        return tmdbFragment$.pipe(
+            map((tmdbFragment) =>
+                isShow ? this.formatTmdbEpisodes(tmdbFragment) : [this.mapTmdbMovieToEpisode(tmdbFragment)],
+            ),
+        );
+    }
+
+    formatTmdbEpisodes(tmdbEpisodes) {
+        return tmdbEpisodes.map((tmdbEpisode) => ({
+            ...tmdbEpisode,
+            airDate: tmdbEpisode.air_date,
+            episodeNumber: tmdbEpisode.episode_number,
+            previewImageUrl: Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`),
+        }));
+    }
+
     getEpisodes$(ororoFragment, seasonNumber) {
         const ororoEpisodes = ororoFragment.episodesBySeasons[seasonNumber];
-        return this.fetchTmdbFragment$(ororoFragment, seasonNumber).pipe(
-            map((tmdbEpisodes) => this.formatTmdbEpisodes(tmdbEpisodes)),
+        return this.getTmdbEpisodes$(ororoFragment, seasonNumber).pipe(
             map((tmdbEpisodes) => this.mergeEpisodes(ororoEpisodes, tmdbEpisodes)),
         );
     }
@@ -167,15 +194,6 @@ export class OroroComponent {
             .subscribe((episodes) => this.setEpisodes(episodes));
     }
 
-    formatTmdbEpisodes(tmdbEpisodes) {
-        return tmdbEpisodes.map((tmdbEpisode) => ({
-            ...tmdbEpisode,
-            airDate: tmdbEpisode.air_date,
-            episodeNumber: tmdbEpisode.episode_number,
-            previewImageUrl: Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`),
-        }));
-    }
-
     formatEpisodes(ororoEpisodes) {
         return ororoEpisodes.map((episode) => ({
             ...episode,
@@ -185,7 +203,7 @@ export class OroroComponent {
         }));
     }
 
-    mapMovieToEpisode(ororoFragment) {
+    mapOroroMovieToEpisode(ororoFragment) {
         return {
             ...ororoFragment,
             airDate: this.movie.release_date,
@@ -195,7 +213,9 @@ export class OroroComponent {
     }
 
     formatOroroFragment(ororoFragment, isShow) {
-        const episodes = isShow ? this.formatEpisodes(ororoFragment.episodes) : [this.mapMovieToEpisode(ororoFragment)];
+        const episodes = isShow
+            ? this.formatEpisodes(ororoFragment.episodes)
+            : [this.mapOroroMovieToEpisode(ororoFragment)];
         ororoFragment.isShow = isShow;
         ororoFragment.episodesBySeasons = episodes
             .sort((a, b) => (a.episodeNumber > b.episodeNumber ? 1 : -1))
