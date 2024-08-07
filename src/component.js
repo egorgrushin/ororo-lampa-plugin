@@ -1,6 +1,12 @@
 import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils';
 import { getTemplate } from './templates';
-import { CONTENT_CONTROLLER_NAME, FILTER_KEY, ORORO_API_KEY } from './constants';
+import {
+    CONTENT_CONTROLLER_NAME,
+    FILTER_KEY,
+    LOGIN_SETTING_PARAM,
+    ORORO_API_KEY,
+    PASSWORD_SETTING_PARAM,
+} from './constants';
 import { TEXTS } from './texts';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { catchError, distinctUntilKeyChanged, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -21,6 +27,9 @@ export class OroroComponent {
         this.last = undefined;
         this.activity = undefined;
         this.ororoApi = window[ORORO_API_KEY];
+        const login = Lampa.Storage.field(LOGIN_SETTING_PARAM);
+        const password = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
+        this.ororoApi.applySettings(login, password);
     }
 
     start() {
