@@ -125,7 +125,7 @@ export class OroroComponent {
 
     getOroroFragment$(movie) {
         const isShow = this.isShow;
-        const fragments$ = isShow ? this.ororoApi.shows$() : this.ororoApi.movies$();
+        const fragments$ = isShow ? this.ororoApi.shows$ : this.ororoApi.movies$;
         return fragments$.pipe(
             catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
             map((ororoFragments) =>
