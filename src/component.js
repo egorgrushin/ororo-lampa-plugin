@@ -1,11 +1,10 @@
 import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils';
 import { getTemplate } from './templates';
-import { CONTENT_CONTROLLER_NAME, FILTER_KEY, LOGIN_SETTING_PARAM, PASSWORD_SETTING_PARAM } from './constants';
+import { CONTENT_CONTROLLER_NAME, FILTER_KEY, ORORO_API_KEY } from './constants';
 import { TEXTS } from './texts';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { catchError, distinctUntilKeyChanged, filter, map, switchMap, tap } from 'rxjs/operators';
 import { CONTENT_LOADING_TEMPLATE, EMPTY_TEMPLATE, EPISODE_TEMPLATE } from './components';
-import { createOroroApi } from './ororo';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
 import { createAffectLoadingState, switchWith } from './rxjs';
@@ -21,9 +20,7 @@ export class OroroComponent {
         this.isInit = false;
         this.last = undefined;
         this.activity = undefined;
-        const login = Lampa.Storage.field(LOGIN_SETTING_PARAM);
-        const password = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
-        this.ororoApi = createOroroApi(login, password);
+        this.ororoApi = window[ORORO_API_KEY];
     }
 
     start() {
@@ -128,8 +125,8 @@ export class OroroComponent {
 
     getOroroFragment$(movie) {
         const isShow = this.isShow;
-        const promise = isShow ? this.ororoApi.getShowsFragments() : this.ororoApi.getMoviesFragments();
-        return from(promise).pipe(
+        const fragments$ = isShow ? this.ororoApi.shows$() : this.ororoApi.movies$();
+        return fragments$.pipe(
             catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
             map((ororoFragments) =>
                 ororoFragments.find((ororoFragment) => {
@@ -182,6 +179,7 @@ export class OroroComponent {
             this.setActivityIsLoading(isLoading),
         );
         const affectBodyLoadingState = createAffectLoadingState(({ isLoading }) => this.setBodyIsLoading(isLoading));
+
         this.flowSubscription = of(movie)
             .pipe(
                 affectActivityLoadingState(

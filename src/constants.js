@@ -1,5 +1,6 @@
 export const PLUGIN_NAME = 'ororo';
 export const COMPONENT_NAME = 'ororo';
+export const ORORO_API_KEY = `${PLUGIN_NAME}-ororo-api`;
 export const SETTINGS_COMPONENT_NAME = `${PLUGIN_NAME}-settings`;
 export const OPEN_BUTTON_ID = `${PLUGIN_NAME}-open-button`;
 export const IS_PLUGIN_READY = `${PLUGIN_NAME}PluginIsReady`;
