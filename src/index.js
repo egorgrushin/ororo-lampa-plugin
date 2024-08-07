@@ -45,7 +45,7 @@ const addSettings = () => {
         param: {
             name: 'login',
             type: 'input',
-            default: true,
+            default: '',
         },
         field: {
             name: 'Логин',
@@ -56,7 +56,7 @@ const addSettings = () => {
         param: {
             name: 'password',
             type: 'input',
-            default: true,
+            default: '',
         },
         field: {
             name: 'Пароль',
