@@ -249,11 +249,12 @@ export class OroroComponent {
             };
         });
         const initialFilterItem = filterItems.find(({ isSelected }) => isSelected);
+        if (!ororoFragment.isShow) return of(initialFilterItem);
+
+        this.explorer.appendHead(this.filter.render());
+        this.filter.render().find('.filter--search').addClass('hide');
         this.filterSubject = new BehaviorSubject(initialFilterItem);
         this.filter.set(FILTER_KEY, filterItems);
-        if (!ororoFragment.isShow) {
-            this.filter.render().find('.filter--filter').addClass('hide');
-        }
         this.filter.onSelect = (type, selectedFilterItem) => {
             Lampa.Select.close();
             this.filterSubject.next(selectedFilterItem);
@@ -270,11 +271,9 @@ export class OroroComponent {
         // add scroll smoothness
         this.scroll.body().addClass('torrent-list');
         this.explorer.appendFiles(this.scroll.render());
-        this.explorer.appendHead(this.filter.render());
         // this line sets height to scroll container. It enables scrolling
         this.scroll.minus(this.explorer.render().find('.explorer__files-head'));
         // hide filter search button
-        this.filter.render().find('.filter--search').addClass('hide');
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
         this.activity.toggle();
     }
