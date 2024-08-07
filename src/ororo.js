@@ -8,7 +8,7 @@ export const createOroroApi = () => {
 
         return fetch(fullUrl, {
             headers: {
-                'Set-cookie': `remember_user_token=${token}`,
+                Cookie: `remember_user_token=${token}`,
             },
         }).then((response) => response.json());
     };
