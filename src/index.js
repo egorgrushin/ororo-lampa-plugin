@@ -77,6 +77,7 @@ const addSettings = () => {
 const initOroroApi = () => {
     const login = Lampa.Storage.field(LOGIN_SETTING_PARAM);
     const password = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
+    debugger;
     window[ORORO_API_KEY] = createOroroApi(login, password);
 };
 
