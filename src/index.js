@@ -80,8 +80,12 @@ const initPlugin = () => {
         if (e.type !== 'complite') return;
         const whereToRender = e.object.activity.render().find('.button--play');
         addOpenButtonToCard(manifest, whereToRender, e.data);
+    });
+    Lampa.Listener.follow('app', (e) => {
+        if (e.type !== 'ready') return;
         addSettings();
     });
+
     window[IS_PLUGIN_READY] = true;
 };
 debugger;
