@@ -21,7 +21,7 @@ export const createAffectLoadingState =
                     }),
                 ),
             ),
-            tap(() => {
+            tap((value) => {
                 setter?.({ isLoading: false }, false, value);
                 stateCleared = true;
             }),
