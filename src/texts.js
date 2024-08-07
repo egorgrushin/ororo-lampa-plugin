@@ -7,6 +7,8 @@ export const TEXTS = {
     NoOroroShow: `${PLUGIN_NAME}-no-ororo-show`,
     NoOroroAccess: `${PLUGIN_NAME}-no-ororo-access`,
     Oops: `${PLUGIN_NAME}-oops`,
+    LoginSettingsParam: `${PLUGIN_NAME}-login-settings-param`,
+    PasswordSettingsParam: `${PLUGIN_NAME}-password-settings-param`,
 };
 
 export const registerTexts = () => {
@@ -20,5 +22,7 @@ export const registerTexts = () => {
             en: 'Access denied to ororo.tv. Please, check ororo-plugin settings and try again',
         },
         [TEXTS.Oops]: { ru: 'Упс', en: 'Oops' },
+        [TEXTS.LoginSettingsParam]: { ru: 'Логин', en: 'Login' },
+        [TEXTS.PasswordSettingsParam]: { ru: 'Пароль', en: 'Password' },
     });
 };
