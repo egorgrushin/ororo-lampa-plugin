@@ -1,5 +1,5 @@
 import { of, throwError } from 'rxjs';
-import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
+import { catchError, finalize, switchMap, tap, map } from 'rxjs/operators';
 
 export const createAffectLoadingState =
     (setter) =>
@@ -31,3 +31,10 @@ export const createAffectLoadingState =
             }),
         );
     };
+
+export const switchWith = (project) => (source) =>
+    source.pipe(
+        switchMap((outerValue, index) =>
+            project(outerValue, index).pipe(map((innerValue) => [outerValue, innerValue])),
+        ),
+    );
