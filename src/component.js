@@ -21,8 +21,8 @@ export class OroroComponent {
         this.isInit = false;
         this.last = undefined;
         this.activity = undefined;
-        const login = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
-        const password = Lampa.Storage.field(LOGIN_SETTING_PARAM);
+        const login = Lampa.Storage.field(LOGIN_SETTING_PARAM);
+        const password = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
         this.ororoApi = createOroroApi(login, password);
     }
 
