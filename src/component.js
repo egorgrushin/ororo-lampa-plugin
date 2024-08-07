@@ -250,14 +250,14 @@ export class OroroComponent {
         });
         const initialFilterItem = filterItems.find(({ isSelected }) => isSelected);
         this.filterSubject = new BehaviorSubject(initialFilterItem);
-
-        if (ororoFragment.isShow) {
-            this.filter.set(FILTER_KEY, filterItems);
-            this.filter.onSelect = (type, selectedFilterItem) => {
-                Lampa.Select.close();
-                this.filterSubject.next(selectedFilterItem);
-            };
+        this.filter.set(FILTER_KEY, filterItems);
+        if (!ororoFragment.isShow) {
+            this.filter.render().find('.filter--filter').addClass('hide');
         }
+        this.filter.onSelect = (type, selectedFilterItem) => {
+            Lampa.Select.close();
+            this.filterSubject.next(selectedFilterItem);
+        };
 
         return this.filterSubject.pipe(
             tap((selectedFilterItem) => this.setSelectedFilterText(selectedFilterItem?.title)),
