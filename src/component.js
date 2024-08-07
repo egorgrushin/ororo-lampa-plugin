@@ -53,6 +53,7 @@ export class OroroComponent {
     mapTmdbMovieToEpisode(movie) {
         return {
             ...movie,
+            isShow: false,
             airDate: movie.release_date,
             episodeNumber: 1,
             previewImageUrl: Lampa.TMDB.image(`t/p/w300${movie.backdrop_path}`),
@@ -70,7 +71,7 @@ export class OroroComponent {
     }
 
     async selectEpisode(enrichedEpisode) {
-        const episode = await this.ororoApi.getEpisode(enrichedEpisode);
+        const episode = enrichedEpisode.isShow ? await this.ororoApi.getEpisode(enrichedEpisode) : enrichedEpisode;
         enrichedEpisode.downloadUrl = episode.download_url;
         enrichedEpisode.subtitles = episode.subtitles;
         const playElement = this.toPlayElement(enrichedEpisode);
@@ -159,6 +160,7 @@ export class OroroComponent {
     formatTmdbEpisodes(tmdbEpisodes) {
         return tmdbEpisodes.map((tmdbEpisode) => ({
             ...tmdbEpisode,
+            isShow: true,
             airDate: tmdbEpisode.air_date,
             episodeNumber: tmdbEpisode.episode_number,
             previewImageUrl: Lampa.TMDB.image(`t/p/w300${tmdbEpisode.still_path}`),
@@ -197,6 +199,7 @@ export class OroroComponent {
     formatEpisodes(ororoEpisodes) {
         return ororoEpisodes.map((episode) => ({
             ...episode,
+            isShow: true,
             airDate: episode.airdate,
             episodeNumber: parseInt(episode.number, 10),
             seasonNumber: episode.season,
@@ -206,6 +209,7 @@ export class OroroComponent {
     mapOroroMovieToEpisode(ororoFragment) {
         return {
             ...ororoFragment,
+            isShow: false,
             airDate: this.movie.release_date,
             episodeNumber: 1,
             seasonNumber: 1,
