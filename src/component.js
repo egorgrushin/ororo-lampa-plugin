@@ -88,7 +88,7 @@ export class OroroComponent {
         return ororoEpisodes.map((episode) => {
             const episodeNumber = episode.episodeNumber;
             const tmdbEpisode = tmdbEpisodesMap[episodeNumber];
-            const timelineHash = Lampa.Utils.hash(`${episode.original_title}:${episode.seasonNumber}:${episodeNumber}`);
+            const timelineHash = Lampa.Utils.hash([episode.seasonNumber, episodeNumber, episode.original_title]);
             const duration = tmdbEpisode ? Lampa.Utils.secondsToTime(tmdbEpisode.runtime * 60, true) : undefined;
             const airDate = tmdbEpisode?.airDate ?? episode.airDate;
             return {
