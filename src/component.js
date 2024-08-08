@@ -9,6 +9,7 @@ import { createOroroApi } from './ororo';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
 import { createAffectLoadingState } from './affectLoadingState';
+import { of } from 'rxjs/internal/observable/of';
 
 export class OroroComponent {
     constructor(input) {
@@ -107,7 +108,8 @@ export class OroroComponent {
         );
         const affectBodyLoadingState = createAffectLoadingState(({ isLoading }) => this.setBodyIsLoading(isLoading));
         this.flowSubscription = affectActivityLoadingState(
-            from(this.ororoApi.getShowsFragments()).pipe(
+            of(undefined).pipe(
+                switchMap(() => from(this.ororoApi.getShowsFragments())),
                 map((ororoShowsFragments) =>
                     ororoShowsFragments.find(({ tmdb_id }) => tmdb_id === movie.id.toString()),
                 ),
