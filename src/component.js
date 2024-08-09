@@ -110,6 +110,7 @@ export class OroroComponent {
         this.flowSubscription = affectActivityLoadingState(
             of(undefined).pipe(
                 switchMap(() => from(this.ororoApi.getShowsFragments())),
+                catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
                 map((ororoShowsFragments) =>
                     ororoShowsFragments.find(({ tmdb_id }) => tmdb_id === movie.id.toString()),
                 ),
