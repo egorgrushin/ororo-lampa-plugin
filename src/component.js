@@ -41,7 +41,12 @@ export class OroroComponent {
             url: enrichedEpisode.downloadUrl,
             // quality: file.qualitys,
             // timeline: file.timeline,
-            // subtitles: file.subtitles,
+            // [{index:integer, label:string, url:string}]
+            subtitles: enrichedEpisode.subtitles.map((subtitle, index) => ({
+                index,
+                label: subtitle.lang,
+                url: subtitle.url,
+            })),
             // callback: file.mark,
         };
     };
