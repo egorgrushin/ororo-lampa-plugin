@@ -62,7 +62,9 @@ export class OroroComponent {
     }
 
     async selectEpisode(enrichedEpisode) {
-        enrichedEpisode.downloadUrl = await this.ororoApi.getEpisodeDownloadUrl(enrichedEpisode);
+        const episode = await this.ororoApi.getEpisode(enrichedEpisode);
+        enrichedEpisode.downloadUrl = episode.download_url;
+        enrichedEpisode.subtitles = episode.subtitles;
         const playElement = this.toPlayElement(enrichedEpisode);
         Lampa.Player.play(playElement);
     }
