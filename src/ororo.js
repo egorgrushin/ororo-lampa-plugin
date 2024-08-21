@@ -16,14 +16,18 @@ export const createOroroApi = () => {
     };
 
     const getShowsFragments = () => request('shows').then(({ shows }) => shows);
+    const getMoviesFragments = () => request('movies').then(({ movies }) => movies);
 
     const getShow = (showId) => request(`shows/${showId}`);
+    const getMovie = (movieId) => request(`movies/${movieId}`);
 
     const getEpisode = (episode) => request(`episodes/${episode.id}`);
 
     return {
         getShowsFragments,
+        getMoviesFragments,
         getShow,
+        getMovie,
         getEpisode,
     };
 };

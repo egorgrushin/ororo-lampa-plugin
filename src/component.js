@@ -51,7 +51,8 @@ export class OroroComponent {
         };
     };
 
-    fetchTmdbEpisodes$(seasonNumber) {
+    fetchTmdbFragment$(ororoFragment, seasonNumber) {
+        if (!ororoFragment.isShow) return [];
         const tmdbUrl = `tv/${this.movie.id}/season/${seasonNumber}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
         const url = Lampa.TMDB.api(tmdbUrl);
         return this.request$(url);
@@ -69,37 +70,44 @@ export class OroroComponent {
         Lampa.Player.play(playElement);
     }
 
-    setEpisodes(ororoShow, seasonNumber, tmdbEpisodes) {
-        const ororoEpisodes = ororoShow.episodesBySeasons[seasonNumber];
+    mergeEpisodes(ororoEpisodes, tmdbEpisodes) {
         const tmdbEpisodesMap = tmdbEpisodes.reduce((memo, tmdbEpisode) => {
             memo[tmdbEpisode.episodeNumber] = tmdbEpisode;
             return memo;
         }, {});
 
-        this.scroll.clear();
-        ororoEpisodes.forEach((episode) => {
+        return ororoEpisodes.map((episode) => {
             const episodeNumber = episode.episodeNumber;
             const tmdbEpisode = tmdbEpisodesMap[episodeNumber];
-            const timeline_hash = Lampa.Utils.hash(
+            const timelineHash = Lampa.Utils.hash(
                 `${this.movie.original_title}:${episode.seasonNumber}:${episodeNumber}`,
             );
             const duration = tmdbEpisode ? Lampa.Utils.secondsToTime(tmdbEpisode.runtime * 60, true) : undefined;
             const airDate = tmdbEpisode?.airDate ?? episode.airDate;
-            const enrichedEpisode = {
+            return {
                 ...episode,
+                timelineHash,
                 episodeNumberFormatted: pad(episodeNumber, 2),
                 duration,
                 releaseDate: Lampa.Utils.parseTime(airDate).full,
                 previewImageUrl: tmdbEpisode?.previewImageUrl,
             };
-            const episodeHtml = getTemplate(EPISODE_TEMPLATE, enrichedEpisode);
+        });
+    }
+
+    setEpisodes(ororoFragment, seasonNumber, tmdbEpisodes) {
+        const ororoEpisodes = ororoFragment.episodesBySeasons[seasonNumber];
+        const episodes = this.mergeEpisodes(ororoEpisodes, tmdbEpisodes);
+        this.scroll.clear();
+        episodes.forEach((episode) => {
+            const episodeHtml = getTemplate(EPISODE_TEMPLATE, episode);
             episodeHtml
                 .find(`.${EPISODE_TEMPLATE.classNames.timeline}`)
-                .append(Lampa.Timeline.render(Lampa.Timeline.view(timeline_hash)));
+                .append(Lampa.Timeline.render(Lampa.Timeline.view(episode.timelineHash)));
 
             episodeHtml
                 .on('hover:focus', (e) => this.scroll.update($(e.target), true))
-                .on('hover:enter', () => this.selectEpisode(enrichedEpisode));
+                .on('hover:enter', () => this.selectEpisode(episode));
 
             const imgRef = episodeHtml.find(`.${EPISODE_TEMPLATE.classNames.image__background}`)[0];
             imgRef.onerror = () => imgRef.remove();
@@ -109,29 +117,48 @@ export class OroroComponent {
         Lampa.Controller.enable(CONTENT_CONTROLLER_NAME);
     }
 
+    getOroroFragment$(movie) {
+        const isShow = !!movie.seasons;
+        const promise = isShow ? this.ororoApi.getShowsFragments() : this.ororoApi.getMoviesFragments();
+        return from(promise).pipe(
+            catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
+            map((ororoFragments) =>
+                ororoFragments.find((ororoFragment) => {
+                    const tmdbId = movie.id.toString();
+                    const imdbId = movie.imdb_id.replace(/\D+/g, '');
+                    return isShow ? ororoFragment.tmdb_id === tmdbId : ororoFragment.imdb_id === imdbId;
+                }),
+            ),
+            switchMap((ororoFragment) => {
+                if (!ororoFragment) return throwError(() => new Error(translate(TEXTS.NoOroroShow)));
+                const promise = isShow
+                    ? this.ororoApi.getShow(ororoFragment.id)
+                    : this.ororoApi.getMovie(ororoFragment.id);
+                return from(promise);
+            }),
+            map((ororoFragment) => this.formatOroroFragment(ororoFragment, isShow)),
+        );
+    }
+
     initFlow(movie) {
         const affectActivityLoadingState = createAffectLoadingState(({ isLoading }) =>
             this.setActivityIsLoading(isLoading),
         );
         const affectBodyLoadingState = createAffectLoadingState(({ isLoading }) => this.setBodyIsLoading(isLoading));
-        this.flowSubscription = affectActivityLoadingState(
-            of(undefined).pipe(
-                switchMap(() => from(this.ororoApi.getShowsFragments())),
-                catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
-                map((ororoShowsFragments) =>
-                    ororoShowsFragments.find(({ tmdb_id }) => tmdb_id === movie.id.toString()),
+
+        this.flowSubscription = of(movie)
+            .pipe(
+                affectActivityLoadingState(
+                    switchMap((movie) => this.getOroroFragment$(movie)),
+                    switchMap((ororoFragment) =>
+                        this.getFilter$(ororoFragment).pipe(map((filter) => [ororoFragment, filter])),
+                    ),
                 ),
-                switchMap((ororoShowFragment) => {
-                    if (!ororoShowFragment) return throwError(() => new Error(translate(TEXTS.NoOroroShow)));
-                    return from(this.ororoApi.getShow(ororoShowFragment.id));
-                }),
-                map((ororoShow) => this.formatOroroShow(ororoShow)),
-                switchMap((ororoShow) => this.getFilter$(ororoShow).pipe(map((filter) => [ororoShow, filter]))),
-                switchMap(([ororoShow, { seasonNumber }]) =>
-                    affectBodyLoadingState(
-                        this.fetchTmdbEpisodes$(seasonNumber).pipe(
+                affectBodyLoadingState(
+                    switchMap(([ororoFragment, { seasonNumber }]) =>
+                        this.fetchTmdbFragment$(ororoFragment, seasonNumber).pipe(
                             map((tmdbEpisodes) => this.formatTmdbEpisodes(tmdbEpisodes)),
-                            map((tmdbEpisodes) => [ororoShow, seasonNumber, tmdbEpisodes]),
+                            map((tmdbEpisodes) => [ororoFragment, seasonNumber, tmdbEpisodes]),
                         ),
                     ),
                 ),
@@ -139,10 +166,10 @@ export class OroroComponent {
                     this.renderError(error);
                     return EMPTY;
                 }),
-            ),
-        ).subscribe(([ororoShow, seasonNumber, tmdbEpisodes]) =>
-            this.setEpisodes(ororoShow, seasonNumber, tmdbEpisodes),
-        );
+            )
+            .subscribe(([ororoFragment, seasonNumber, tmdbEpisodes]) =>
+                this.setEpisodes(ororoFragment, seasonNumber, tmdbEpisodes),
+            );
     }
 
     formatTmdbEpisodes(tmdbEpisodes) {
@@ -154,14 +181,28 @@ export class OroroComponent {
         }));
     }
 
-    formatOroroShow(ororoShow) {
-        ororoShow.episodesBySeasons = ororoShow.episodes
-            .map((episode) => ({
-                ...episode,
-                airDate: episode.airdate,
-                episodeNumber: parseInt(episode.number, 10),
-                seasonNumber: episode.season,
-            }))
+    formatEpisodes(ororoEpisodes) {
+        return ororoEpisodes.map((episode) => ({
+            ...episode,
+            airDate: episode.airdate,
+            episodeNumber: parseInt(episode.number, 10),
+            seasonNumber: episode.season,
+        }));
+    }
+
+    mapMovieToEpisode(ororoFragment) {
+        return {
+            ...ororoFragment,
+            airDate: ororoFragment.year,
+            episodeNumber: 1,
+            seasonNumber: 1,
+        };
+    }
+
+    formatOroroFragment(ororoFragment, isShow) {
+        const episodes = isShow ? this.formatEpisodes(ororoFragment.episodes) : [this.mapMovieToEpisode(ororoFragment)];
+        ororoFragment.isShow = isShow;
+        ororoFragment.episodesBySeasons = episodes
             .sort((a, b) => (a.episodeNumber > b.episodeNumber ? 1 : -1))
             .reduce((memo, episode) => {
                 const season = episode.seasonNumber;
@@ -169,14 +210,15 @@ export class OroroComponent {
                 memo[season].push(episode);
                 return memo;
             }, {});
-        ororoShow.seasons = Object.keys(ororoShow.episodesBySeasons)
+
+        ororoFragment.seasons = Object.keys(ororoFragment.episodesBySeasons)
             .map((seasonNumber) => parseInt(seasonNumber, 10))
             .sort((a, b) => (a > b ? 1 : -1));
-        return ororoShow;
+        return ororoFragment;
     }
 
-    getFilter$(ororoShow) {
-        const validSeasons = ororoShow.seasons.filter((seasonNumber) => seasonNumber > 0);
+    getFilter$(ororoFragment) {
+        const validSeasons = ororoFragment.seasons.filter((seasonNumber) => seasonNumber > 0);
         const selectedSeasonId = validSeasons[0];
         const filterItems = validSeasons.map((seasonNumber) => {
             const id = seasonNumber;
