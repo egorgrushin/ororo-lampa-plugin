@@ -2,14 +2,13 @@ import { getCurrentActivity, getCurrentLanguage, pad, translate } from './utils'
 import { getTemplate } from './templates';
 import { CONTENT_CONTROLLER_NAME, FILTER_KEY } from './constants';
 import { TEXTS } from './texts';
-import { BehaviorSubject, from, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { catchError, distinctUntilKeyChanged, filter, map, switchMap, tap } from 'rxjs/operators';
 import { CONTENT_LOADING_TEMPLATE, EMPTY_TEMPLATE, EPISODE_TEMPLATE } from './components';
 import { createOroroApi } from './ororo';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
 import { createAffectLoadingState } from './affectLoadingState';
-import { of } from 'rxjs/internal/observable/of';
 
 export class OroroComponent {
     constructor(input) {
@@ -52,7 +51,7 @@ export class OroroComponent {
     };
 
     fetchTmdbFragment$(ororoFragment, seasonNumber) {
-        if (!ororoFragment.isShow) return [];
+        if (!ororoFragment.isShow) return of([]);
         const tmdbUrl = `tv/${this.movie.id}/season/${seasonNumber}?api_key=${Lampa.TMDB.key()}&language=${getCurrentLanguage()}`;
         const url = Lampa.TMDB.api(tmdbUrl);
         return this.request$(url);
