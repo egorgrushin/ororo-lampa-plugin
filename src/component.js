@@ -8,7 +8,7 @@ import { CONTENT_LOADING_TEMPLATE, EMPTY_TEMPLATE, EPISODE_TEMPLATE } from './co
 import { createOroroApi } from './ororo';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
-import { createAffectLoadingState } from './affectLoadingState';
+import { createAffectLoadingState, switchWith } from './rxjs';
 
 export class OroroComponent {
     constructor(input) {
@@ -94,9 +94,7 @@ export class OroroComponent {
         });
     }
 
-    setEpisodes(ororoFragment, seasonNumber, tmdbEpisodes) {
-        const ororoEpisodes = ororoFragment.episodesBySeasons[seasonNumber];
-        const episodes = this.mergeEpisodes(ororoEpisodes, tmdbEpisodes);
+    setEpisodes(episodes) {
         this.scroll.clear();
         episodes.forEach((episode) => {
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, episode);
@@ -139,36 +137,34 @@ export class OroroComponent {
         );
     }
 
+    getEpisodes$(ororoFragment, seasonNumber) {
+        const ororoEpisodes = ororoFragment.episodesBySeasons[seasonNumber];
+        return this.fetchTmdbFragment$(ororoFragment, seasonNumber).pipe(
+            map((tmdbEpisodes) => this.formatTmdbEpisodes(tmdbEpisodes)),
+            map((tmdbEpisodes) => this.mergeEpisodes(ororoEpisodes, tmdbEpisodes)),
+        );
+    }
+
     initFlow(movie) {
         const affectActivityLoadingState = createAffectLoadingState(({ isLoading }) =>
             this.setActivityIsLoading(isLoading),
         );
         const affectBodyLoadingState = createAffectLoadingState(({ isLoading }) => this.setBodyIsLoading(isLoading));
-
         this.flowSubscription = of(movie)
             .pipe(
                 affectActivityLoadingState(
                     switchMap((movie) => this.getOroroFragment$(movie)),
-                    switchMap((ororoFragment) =>
-                        this.getFilter$(ororoFragment).pipe(map((filter) => [ororoFragment, filter])),
-                    ),
+                    switchWith((ororoFragment) => this.getFilter$(ororoFragment)),
                 ),
                 affectBodyLoadingState(
-                    switchMap(([ororoFragment, { seasonNumber }]) =>
-                        this.fetchTmdbFragment$(ororoFragment, seasonNumber).pipe(
-                            map((tmdbEpisodes) => this.formatTmdbEpisodes(tmdbEpisodes)),
-                            map((tmdbEpisodes) => [ororoFragment, seasonNumber, tmdbEpisodes]),
-                        ),
-                    ),
+                    switchMap(([ororoFragment, { seasonNumber }]) => this.getEpisodes$(ororoFragment, seasonNumber)),
                 ),
                 catchError((error) => {
                     this.renderError(error);
                     return EMPTY;
                 }),
             )
-            .subscribe(([ororoFragment, seasonNumber, tmdbEpisodes]) =>
-                this.setEpisodes(ororoFragment, seasonNumber, tmdbEpisodes),
-            );
+            .subscribe((episodes) => this.setEpisodes(episodes));
     }
 
     formatTmdbEpisodes(tmdbEpisodes) {
@@ -192,7 +188,7 @@ export class OroroComponent {
     mapMovieToEpisode(ororoFragment) {
         return {
             ...ororoFragment,
-            airDate: ororoFragment.year,
+            airDate: this.movie.release_date,
             episodeNumber: 1,
             seasonNumber: 1,
         };
