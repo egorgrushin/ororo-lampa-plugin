@@ -95,7 +95,7 @@ export class OroroComponent {
             return {
                 ...episode,
                 timelineHash,
-                episodeNumberFormatted: pad(episodeNumber, 2),
+                episodeNumberFormatted: episode.isShow ? pad(episodeNumber, 2) : '',
                 duration,
                 releaseDate: Lampa.Utils.parseTime(airDate).full,
                 previewImageUrl: tmdbEpisode?.previewImageUrl,
