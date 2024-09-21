@@ -13,6 +13,7 @@ import { createAffectLoadingState, switchWith } from './rxjs';
 export class OroroComponent {
     constructor(input) {
         this.movie = input.movie;
+        this.isShow = !!movie.seasons;
         this.request = new Lampa.Reguest();
         this.scroll = new Lampa.Scroll({ mask: true, over: true });
         this.explorer = new Lampa.Explorer(input);
@@ -124,7 +125,7 @@ export class OroroComponent {
     }
 
     getOroroFragment$(movie) {
-        const isShow = !!movie.seasons;
+        const isShow = this.isShow;
         const promise = isShow ? this.ororoApi.getShowsFragments() : this.ororoApi.getMoviesFragments();
         return from(promise).pipe(
             catchError(() => throwError(() => new Error(translate(TEXTS.NoOroroAccess)))),
@@ -250,7 +251,6 @@ export class OroroComponent {
         });
         const initialFilterItem = filterItems.find(({ isSelected }) => isSelected);
         if (!ororoFragment.isShow) return of(initialFilterItem);
-
         this.explorer.appendHead(this.filter.render());
         this.filter.render().find('.filter--search').addClass('hide');
         this.filterSubject = new BehaviorSubject(initialFilterItem);
@@ -345,6 +345,7 @@ export class OroroComponent {
             },
             right: () => {
                 if (Navigator.canmove('right')) return Navigator.move('right');
+                if (!this.isShow) return;
                 this.filter.show(translate('title_filter'), FILTER_KEY);
             },
             left: () => {
