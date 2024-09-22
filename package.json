@@ -1,6 +1,6 @@
 {
   "name": "ororo-lampa-plugin",
-  "version": "1.0.82",
+  "version": "1.0.83",
   "main": "dist/index.js",
   "author": "",
   "license": "ISC",
