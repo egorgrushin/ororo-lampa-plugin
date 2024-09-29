@@ -89,11 +89,13 @@ export class OroroComponent {
             const episodeNumber = episode.episodeNumber;
             const tmdbEpisode = tmdbEpisodesMap[episodeNumber];
             const timelineHash = Lampa.Utils.hash([episode.seasonNumber, episodeNumber, episode.original_title]);
+            const timeline = Lampa.Timeline.view(timelineHash);
             const duration = tmdbEpisode ? Lampa.Utils.secondsToTime(tmdbEpisode.runtime * 60, true) : undefined;
             const airDate = tmdbEpisode?.airDate ?? episode.airDate;
             return {
                 ...episode,
                 timelineHash,
+                timeline,
                 episodeNumberFormatted: episode.isShow ? pad(episodeNumber, 2) : '',
                 duration,
                 releaseDate: Lampa.Utils.parseTime(airDate).full,
@@ -108,7 +110,7 @@ export class OroroComponent {
             const episodeHtml = getTemplate(EPISODE_TEMPLATE, episode);
             episodeHtml
                 .find(`.${EPISODE_TEMPLATE.classNames.timeline}`)
-                .append(Lampa.Timeline.render(Lampa.Timeline.view(episode.timelineHash)));
+                .append(Lampa.Timeline.render(episode.timeline));
 
             episodeHtml
                 .on('hover:focus', (e) => this.scroll.update($(e.target), true))
