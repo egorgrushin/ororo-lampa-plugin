@@ -1,9 +1,15 @@
 import { OroroComponent } from './component';
-import { COMPONENT_NAME, OPEN_BUTTON_ID, PLUGIN_NAME } from './constants';
+import {
+    COMPONENT_NAME,
+    IS_PLUGIN_READY,
+    IS_PLUGIN_SETTINGS_READY,
+    OPEN_BUTTON_ID,
+    PLUGIN_NAME,
+    SETTINGS_COMPONENT_NAME,
+} from './constants';
 import { translate } from './utils';
 import { registerTemplates } from './templates';
 import { registerTexts, TEXTS } from './texts';
-
 
 const open = (cardData) => {
     Lampa.Activity.push({
@@ -27,6 +33,37 @@ const addOpenButtonToCard = (manifest, whereToRender, cardData) => {
     whereToRender.before(button);
 };
 
+const addSettings = () => {
+    if (window[IS_PLUGIN_SETTINGS_READY]) return;
+    window[IS_PLUGIN_SETTINGS_READY] = true;
+    Lampa.SettingsApi.addComponent({
+        component: SETTINGS_COMPONENT_NAME,
+        name: translate(TEXTS.Title),
+    });
+    Lampa.SettingsApi.addParam({
+        component: SETTINGS_COMPONENT_NAME,
+        param: {
+            name: 'login',
+            type: 'input',
+            default: true,
+        },
+        field: {
+            name: 'Логин',
+        },
+    });
+    Lampa.SettingsApi.addParam({
+        component: SETTINGS_COMPONENT_NAME,
+        param: {
+            name: 'password',
+            type: 'input',
+            default: true,
+        },
+        field: {
+            name: 'Пароль',
+        },
+    });
+};
+
 const initPlugin = () => {
     registerTexts();
     registerTemplates();
@@ -43,10 +80,11 @@ const initPlugin = () => {
         if (e.type !== 'complite') return;
         const whereToRender = e.object.activity.render().find('.button--play');
         addOpenButtonToCard(manifest, whereToRender, e.data);
+        addSettings();
     });
-    window.is_ororo_plugin_ready = true;
+    window[IS_PLUGIN_READY] = true;
 };
 
-if (!window.is_ororo_plugin_ready) {
+if (!window[IS_PLUGIN_READY]) {
     initPlugin();
 }
