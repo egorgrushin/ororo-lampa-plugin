@@ -37,11 +37,11 @@ const addSettings = () => {
     if (window[IS_PLUGIN_SETTINGS_READY]) return;
     window[IS_PLUGIN_SETTINGS_READY] = true;
     Lampa.SettingsApi.addComponent({
-        component: COMPONENT_NAME,
+        component: SETTINGS_COMPONENT_NAME,
         name: translate(TEXTS.Title),
     });
     Lampa.SettingsApi.addParam({
-        component: COMPONENT_NAME,
+        component: SETTINGS_COMPONENT_NAME,
         param: {
             name: 'login',
             type: 'input',
@@ -52,7 +52,7 @@ const addSettings = () => {
         },
     });
     Lampa.SettingsApi.addParam({
-        component: COMPONENT_NAME,
+        component: SETTINGS_COMPONENT_NAME,
         param: {
             name: 'password',
             type: 'input',
