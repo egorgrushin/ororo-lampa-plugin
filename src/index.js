@@ -84,7 +84,7 @@ const initPlugin = () => {
     });
     window[IS_PLUGIN_READY] = true;
 };
-
+debugger;
 if (!window[IS_PLUGIN_READY]) {
     initPlugin();
 }
