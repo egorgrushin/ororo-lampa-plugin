@@ -3,7 +3,9 @@ import {
     COMPONENT_NAME,
     IS_PLUGIN_READY,
     IS_PLUGIN_SETTINGS_READY,
+    LOGIN_SETTING_PARAM,
     OPEN_BUTTON_ID,
+    PASSWORD_SETTING_PARAM,
     PLUGIN_NAME,
     SETTINGS_COMPONENT_NAME,
 } from './constants';
@@ -43,23 +45,23 @@ const addSettings = () => {
     Lampa.SettingsApi.addParam({
         component: SETTINGS_COMPONENT_NAME,
         param: {
-            name: 'login',
+            name: LOGIN_SETTING_PARAM,
             type: 'input',
             default: '',
         },
         field: {
-            name: 'Логин',
+            name: translate(TEXTS.LoginSettingsParam),
         },
     });
     Lampa.SettingsApi.addParam({
         component: SETTINGS_COMPONENT_NAME,
         param: {
-            name: 'password',
+            name: PASSWORD_SETTING_PARAM,
             type: 'input',
             default: '',
         },
         field: {
-            name: 'Пароль',
+            name: translate(TEXTS.PasswordSettingsParam),
         },
     });
 };

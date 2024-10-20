@@ -6,3 +6,5 @@ export const IS_PLUGIN_READY = `${PLUGIN_NAME}PluginIsReady`;
 export const IS_PLUGIN_SETTINGS_READY = `${PLUGIN_NAME}PluginSettingsIsReady`;
 export const FILTER_KEY = `filter`;
 export const CONTENT_CONTROLLER_NAME = `content`;
+export const LOGIN_SETTING_PARAM = `login`;
+export const PASSWORD_SETTING_PARAM = `password`;
