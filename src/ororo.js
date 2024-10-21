@@ -1,7 +1,5 @@
-export const createOroroApi = () => {
+export const createOroroApi = (login, password) => {
     const baseUrl = 'https://front.ororo-mirror.tv/api/v2';
-    const login = localStorage.getItem('ororo_login');
-    const password = localStorage.getItem('ororo_password');
     const encoded = btoa(`${login}:${password}`);
 
     const request = (url) => {
