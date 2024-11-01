@@ -5,6 +5,7 @@ import {
     IS_PLUGIN_SETTINGS_READY,
     LOGIN_SETTING_PARAM,
     OPEN_BUTTON_ID,
+    ORORO_API_KEY,
     PASSWORD_SETTING_PARAM,
     PLUGIN_NAME,
     SETTINGS_COMPONENT_NAME,
@@ -12,6 +13,7 @@ import {
 import { translate } from './utils';
 import { registerTemplates } from './templates';
 import { registerTexts, TEXTS } from './texts';
+import { createOroroApi } from './ororo';
 
 const open = (cardData) => {
     Lampa.Activity.push({
@@ -72,9 +74,16 @@ const addSettings = () => {
     });
 };
 
+const initOroroApi = () => {
+    const login = Lampa.Storage.field(LOGIN_SETTING_PARAM);
+    const password = Lampa.Storage.field(PASSWORD_SETTING_PARAM);
+    window[ORORO_API_KEY] = createOroroApi(login, password);
+};
+
 const initPlugin = () => {
     registerTexts();
     registerTemplates();
+    initOroroApi();
     const manifest = {
         type: 'video',
         version: '0.0.2',
@@ -92,6 +101,7 @@ const initPlugin = () => {
     Lampa.Listener.follow('app', (e) => {
         if (e.type !== 'ready') return;
         addSettings();
+        initOroroApi();
     });
 
     window[IS_PLUGIN_READY] = true;
