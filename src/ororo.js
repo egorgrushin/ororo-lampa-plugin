@@ -1,5 +1,5 @@
-import { from, shareReplay } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { from, shareReplay, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 export const createOroroApi = (login, password) => {
     const baseUrl = 'https://front.ororo-mirror.tv/api/v2';
@@ -16,12 +16,14 @@ export const createOroroApi = (login, password) => {
         }).then((response) => response.json());
     };
 
-    const shows$ = from(request('shows')).pipe(
+    const shows$ = of(undefined).pipe(
+        switchMap(() => from(request('shows'))),
         map(({ shows }) => shows),
         shareReplay(1),
     );
 
-    const movies$ = from(request('movies')).pipe(
+    const movies$ = of(undefined).pipe(
+        switchMap(() => from(request('movies'))),
         map(({ movies }) => movies),
         shareReplay(1),
     );
