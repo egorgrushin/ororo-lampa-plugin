@@ -1,9 +1,9 @@
-import { from, shareReplay, of } from 'rxjs';
+import { from, of, shareReplay } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
-export const createOroroApi = (login, password) => {
+export const createOroroApi = () => {
     const baseUrl = 'https://front.ororo-mirror.tv/api/v2';
-    const encoded = btoa(`${login}:${password}`);
+    let encoded = '';
 
     const request = (url) => {
         const fullUrl = `${baseUrl}/${url}`;
@@ -14,6 +14,10 @@ export const createOroroApi = (login, password) => {
                 Authorization: `Basic ${encoded}`,
             },
         }).then((response) => response.json());
+    };
+
+    const applySettings = (login, password) => {
+        encoded = btoa(`${login}:${password}`);
     };
 
     const shows$ = of(undefined).pipe(
@@ -39,5 +43,6 @@ export const createOroroApi = (login, password) => {
         getShow,
         getMovie,
         getEpisode,
+        applySettings,
     };
 };
